@@ -10,8 +10,15 @@ void knight(int i, int j, int r, int c){
                 board[i][j]='-';
             }
         }
+        else if(board[r][c]==opponent_piece){
+            killed_arr[counter]=opponent_piece;
+            counter++;
+            board[r][c]=board[i][j];
+            board[i][j]=board[r-1][c];
+        } 
     }
     else{
         printf("Not valid move");
     }
+
 }
