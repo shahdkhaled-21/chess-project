@@ -11,14 +11,17 @@ void knight(int i, int j, int r, int c){
             }
         }
         else if(board[r][c]==opponent_piece){
-            killed_arr[counter]=opponent_piece;
+            killed_arr[counter]=board[r][c];
             counter++;
             board[r][c]=board[i][j];
-            board[i][j]=board[r-1][c];
-        } 
+            board[i][j]='.';//some modifications must be applied here
+        }
+        else if(board[r][c]==friendly_piece){
+            printf("Cannot eat friendly piece");
+        }
     }
     else{
-        printf("Not valid move");
+        printf("Invalid move");
     }
-
 }
+
