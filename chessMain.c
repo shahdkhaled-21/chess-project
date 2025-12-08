@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include<stdlib.h>
 #include <string.h>
 int main(){
     char board [9][9] = {{' ','A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'},
@@ -31,4 +32,5 @@ int main(){
         printf("\n");
     }
     return 0;
+
 }
