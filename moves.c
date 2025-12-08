@@ -161,7 +161,7 @@ void queen(int i, int j, int r, int c){
             killed_arr[counter]=board[r][c];
             counter++;
             board[r][c]=board[i][j];
-            board[i][j]=board[r-1][c];
+            board[i][j]=board[r-1][c];//some modifications must be applied here******************
         }
         else if(board[r][c]==friendly_piece){
             printf("Cannot eat friendly piece");
@@ -171,5 +171,6 @@ void queen(int i, int j, int r, int c){
         printf("Invalid move");
     }
 }
+
 
 
