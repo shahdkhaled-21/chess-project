@@ -80,10 +80,26 @@ void queen(int i, int j, int r, int c){
             }
         }
         if(emptyPath==1){
-            if(board[r][c]=='-'||board[r][c]=='.'){
+            if(board[r][c]=='-' && abs(r-i)==abs(c-j) || board[r][c]=='.'  && abs(r-i)==abs(c-j)){
                 char temp=board[r][c];
                 board[r][c]=board[i][j];
                 board[i][j]=temp;
+            }
+            else if(board[r][c]=='-' && i==r && r&1==1 || board[r][c]=='-' && j==c && c&1==1){
+                board[r][c]=board[i][j];
+                board[i][j]='.';
+            }
+            else if(board[r][c]=='-' && i==r && r&1==0 || board[r][c]=='-' && j==c && c&1==0){
+                board[r][c]=board[i][j];
+                board[i][j]='-';
+            }
+            else if(board[r][c]=='.' && i==r && r&1==0 || board[r][c]=='.' && j==c && c&1==0){
+                board[r][c]=board[i][j];
+                board[i][j]='.';
+            }
+            else if(board[r][c]=='.' && i==r && r&1==1 || board[r][c]=='.' && j==c && c&1==1){
+                board[r][c]=board[i][j];
+                board[i][j]='-';
             }
             else if(board[r][c]==opponent_piece){
                 killed_arr[counter]=board[r][c];
@@ -209,6 +225,7 @@ void pawn(int i, int j, int r, int c){
         printf("Invalid move");
     }
 }
+
 
 
 
