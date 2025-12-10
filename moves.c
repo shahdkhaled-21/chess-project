@@ -225,8 +225,48 @@ void pawn(int i, int j, int r, int c){
         printf("Invalid move");
     }
 }
+void bishop(int i, int j, int r, int c){
 
+}
+void rock(int i, int j, int r, int c){
 
+}
+void king(int i, int j, int r, int c){
+    if(board[r][c]=='-' || board[r][c]=='.'){
 
+        if((r == i && c == j + 1) || (r == i && c == j - 1) || (r == i + 1 && c == j) || (r == i - 1 && c == j)){
 
+            board[r][c] = board[i][j] ;
+            if(i % 2 == 0 && j % 2 == 0){
+                board[i][j] = '-' ;
+            }
+             if(i % 2 == 1 && j % 2 == 1){
+                board[i][j] = '-' ;
+            }
+            if(i % 2 == 1 && j % 2 == 0){
+                board[i][j] = '.' ;
+            }
+            if(i % 2 == 0 && j % 2 == 1){
+                board[i][j] = '.' ;
+            }
+         }  else printf("Invalid move");
+    }
+     else  if(board[r][c] == opponent_piece){
+                killed_arr[counter]=board[r][c];
+                counter++;
+                board[r][c]=board[i][j];
+                if(i % 2 == 0 && j % 2 == 0){
+                    board[i][j] = '-' ;
+                }
+                if(i % 2 == 1 && j % 2 == 1){
+                    board[i][j] = '-' ;
+                }
+                if(i % 2 == 1 && j % 2 == 0){
+                    board[i][j] = '.' ;
+                }
+                if(i % 2 == 0 && j % 2 == 1){
+                    board[i][j] = '.' ;
+                }
 
+     }  else    if(board[r][c] == friendly_piece)   printf("Cannot eat a friendly piece");
+}
