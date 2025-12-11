@@ -1,5 +1,3 @@
-#ifndef MOVES_H
-#define MOVES_H
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -494,4 +492,3 @@ void king(int i, int j, int r, int c){
 
      }  else    if(strcmp(board[r][c], friendly_piece) == 0)   printf("Cannot eat a friendly piece");
 }
-#endif
