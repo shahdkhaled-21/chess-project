@@ -1,3 +1,12 @@
+#ifndef MOVES_H
+#define MOVES_H
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+extern board[8][8][4];
+extern killed_arr[counter][4];
+extern opponent_piece, friendly_piece;
+extern counter;
 void knight(int i, int j, int r, int c){
     if(abs(r-i)==1 && abs(c-j)==2 || abs(r-i)==3 && abs(c-j)==1){
         if(strcmp(board[r][c], "-") == 0 || strcmp(board[r][c], ".") == 0){
@@ -485,3 +494,4 @@ void king(int i, int j, int r, int c){
 
      }  else    if(strcmp(board[r][c], friendly_piece) == 0)   printf("Cannot eat a friendly piece");
 }
+#endif

@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "moves.h"
 char display(char board[8][8][4],char width_arr[8][2]){
     for(int k=0 ; k<8 ; k++){
         printf("      %s ",width_arr[k]);
