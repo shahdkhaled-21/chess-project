@@ -1,23 +1,36 @@
 void knight(int i, int j, int r, int c){
     if(abs(r-i)==1 && abs(c-j)==2 || abs(r-i)==3 && abs(c-j)==1){
-        if(board[r][c]=='-' || board[r][c]=='.'){
-            char temp=board[r][c];
-            board[r][c]=board[i][j];
-            if(temp=='-'){
-                board[i][j]='.';
+        if(strcmp(board[r][c], "-") == 0 || strcmp(board[r][c], ".") == 0){
+            char temp[4];
+            memcpy(temp, board[r][c], 4);
+            memcpy(board[r][c], board[i][j], 4);
+            if(strcmp(temp, "-") == 0){
+                memcpy(board[i][j], ".", 4);
             }
             else{
-                board[i][j]='-';
+                memcpy(board[i][j], "-", 4);
             }
         }
-        else if(board[r][c]==opponent_piece){
-            killed_arr[counter]=board[r][c];
-            counter++;
-            board[r][c]=board[i][j];
-            board[i][j]='.';//some modifications must be applied here******************
+        else if(strcmp(board[r][c], opponent_piece) == 0){
+                memcpy(killed_arr[counter], board[r][c], 4);
+                counter++;
+                memcpy(board[r][c], board[i][j], 4);
+                if(i % 2 == 0 && j % 2 == 0){
+                    memcpy(board[i][j], "-", 4);
+                 }
+                   else if(i % 2 == 1 && j % 2 == 1){
+                     memcpy(board[i][j], "-", 4);
+                 }
+                    else if(i % 2 == 1 && j % 2 == 0){
+                     memcpy(board[i][j], ".", 4);
+                 }
+                   else if(i % 2 == 0 && j % 2 == 1){
+                     memcpy(board[i][j], ".", 4);
+                 }
+
         }
-        else if(board[r][c]==friendly_piece){
-            printf("Cannot eat friendly piece");
+        else if(strcmp(board[r][c], friendly_piece) == 0){
+            printf("Cannot eat a friendly piece");
         }
     }
     else{
@@ -29,11 +42,11 @@ void queen(int i, int j, int r, int c){
     if(abs(i-r)==abs(j-c)){
         if(i>r && j>c){
             while(k>r && p>c){
-                if(board[k][p]=='.'||board[k][p]=='-'){
-                    emptyPath=1;
+                if(strcmp(board[k][p], ".") == 0 || strcmp(board[k][p], "-") == 0){
+                    emptyPath = 1;
                 }
                 else{
-                    emptyPath=0;
+                    emptyPath = 0;
                     break;
                 }
                 k--;
@@ -42,11 +55,11 @@ void queen(int i, int j, int r, int c){
         }
         else if(i<r && j<c){
             while(k<r && p<c){
-                if(board[k][p]=='.'||board[k][p]=='-'){
-                    emptyPath=1;
+                if(strcmp(board[k][p], ".") == 0 || strcmp(board[k][p], "-") == 0){
+                    emptyPath = 1;
                 }
                 else{
-                    emptyPath=0;
+                    emptyPath = 0;
                     break;
                 }
                 k++;
@@ -55,11 +68,11 @@ void queen(int i, int j, int r, int c){
         }
         else if(i<r && j>c){
             while(k<r && p>c){
-                if(board[k][p]=='.'||board[k][p]=='-'){
-                    emptyPath=1;
+                if(strcmp(board[k][p], ".") == 0 || strcmp(board[k][p], "-") == 0){
+                    emptyPath = 1;
                 }
                 else{
-                    emptyPath=0;
+                    emptyPath = 0;
                     break;
                 }
                 k++;
@@ -68,46 +81,47 @@ void queen(int i, int j, int r, int c){
         }
         else if(i>r && j<c){
             while(k<r && p>c){
-                if(board[k][p]=='.'||board[k][p]=='-'){
-                    emptyPath=1;
+                if(strcmp(board[k][p], ".") == 0 || strcmp(board[k][p], "-") == 0){
+                    emptyPath = 1;
                 }
                 else{
-                    emptyPath=0;
+                    emptyPath = 0;
                     break;
                 }
                 k--;
                 p++;
             }
         }
-        if(emptyPath==1){
-            if(board[r][c]=='-' && abs(r-i)==abs(c-j) || board[r][c]=='.'  && abs(r-i)==abs(c-j)){
-                char temp=board[r][c];
-                board[r][c]=board[i][j];
-                board[i][j]=temp;
+        if(emptyPath == 1){
+            if(strcmp(board[r][c], "-") == 0 && abs(r-i) == abs(c-j) || strcmp(board[r][c], ".") == 0 && abs(r-i) == abs(c-j)){
+                char temp[4];
+                memcpy(temp, board[r][c], 4);
+                memcpy(board[r][c], board[i][j], 4);
+                memcpy(board[i][j], temp, 4);
             }
-            else if(board[r][c]=='-' && i==r && r&1==1 || board[r][c]=='-' && j==c && c&1==1){
-                board[r][c]=board[i][j];
-                board[i][j]='.';
+            else if(strcmp(board[r][c], "-") == 0 && i==r && r&1==1 || strcmp(board[r][c], "-") == 0  && j==c && c&1 == 1){
+                memcpy(board[r][c], board[i][j], 4);
+                memcpy(board[i][j], ".", 4);
             }
-            else if(board[r][c]=='-' && i==r && r&1==0 || board[r][c]=='-' && j==c && c&1==0){
-                board[r][c]=board[i][j];
-                board[i][j]='-';
+            else if(strcmp(board[r][c], "-") == 0 && i==r && r&1==0 || strcmp(board[r][c], "-") == 0 && j == c && c&1 == 0){
+                 memcpy(board[r][c], board[i][j], 4);
+                 memcpy(board[i][j], "-", 4);
             }
-            else if(board[r][c]=='.' && i==r && r&1==0 || board[r][c]=='.' && j==c && c&1==0){
-                board[r][c]=board[i][j];
-                board[i][j]='.';
+            else if(strcmp(board[r][c], ".") == 0 && i == r && r&1 == 0 || strcmp(board[r][c], ".") == 0 && j == c && c&1 == 0){
+                memcpy(board[r][c], board[i][j], 4);
+                memcpy(board[i][j], ".", 4);
             }
-            else if(board[r][c]=='.' && i==r && r&1==1 || board[r][c]=='.' && j==c && c&1==1){
-                board[r][c]=board[i][j];
-                board[i][j]='-';
+            else if(strcmp(board[r][c], ".") == 0 && i == r && r&1 == 1 || strcmp(board[r][c], ".") == 0 && j == c && c&1 == 1){
+                 memcpy(board[r][c], board[i][j], 4);
+                 memcpy(board[i][j], "-", 4);
             }
-            else if(board[r][c]==opponent_piece){
-                killed_arr[counter]=board[r][c];
+            else if(strcmp(board[r][c], opponent_piece) == 0){
+                memcpy(killed_arr[counter], board[r][c], 4);
                 counter++;
-                board[r][c]=board[i][j];
-                board[i][j]=board[r-1][c];
+                memcpy(board[r][c], board[i][j], 4);
+                memcpy(board[i][j], board[r-1][c], 4);
             }
-            else if(board[r][c]==friendly_piece){
+            else if(strcmp(board[r][c], friendly_piece) == 0){
                 printf("Cannot eat friendly piece");
             }
         }
@@ -118,7 +132,7 @@ void queen(int i, int j, int r, int c){
     else if(r==i){
         if(j>c){
             while(p>c){
-                if(board[k][p]=='.'||board[k][p]=='-'){
+                if(strcmp(board[r][c], ".") == 0 || strcmp(board[r][c], "-") == 0){
                     emptyPath=1;
                 }
                 else{
@@ -130,7 +144,7 @@ void queen(int i, int j, int r, int c){
         }
         else if(j<c){
             while(p<c){
-                if(board[k][p]=='.'||board[k][p]=='-'){
+                if(strcmp(board[r][c], ".") == 0 || strcmp(board[r][c], "-") == 0){
                     emptyPath=1;
                 }
                 else{
@@ -144,7 +158,7 @@ void queen(int i, int j, int r, int c){
     else if(c==j){
         if(i>r){
             while(k>r){
-                if(board[k][p]=='.'||board[k][p]=='-'){
+                if(strcmp(board[r][c], ".") == 0 || strcmp(board[r][c], "-") == 0){
                     emptyPath=1;
                 }
                 else{
@@ -156,7 +170,7 @@ void queen(int i, int j, int r, int c){
         }
         else if(j<c){
             while(k<r){
-                if(board[k][p]=='.'||board[k][p]=='-'){
+                if(strcmp(board[r][c], ".") == 0 || strcmp(board[r][c], "-") == 0){
                     emptyPath=1;
                 }
                 else{
@@ -167,19 +181,32 @@ void queen(int i, int j, int r, int c){
             }
         }
     }
-    if(emptyPath==1){
-        if(board[r][c]=='-'||board[r][c]=='.'){
-            char temp=board[r][c];
-            board[r][c]=board[i][j];
-            board[i][j]=temp;
+    if(emptyPath == 1){
+        if(strcmp(board[r][c], ".") == 0 || strcmp(board[r][c], "-") == 0){
+                char temp[4];
+                memcpy(temp, board[r][c], 4);
+                memcpy(board[r][c], board[i][j], 4);
+                memcpy(board[i][j], temp, 4);
         }
-        else if(board[r][c]==opponent_piece){
-            killed_arr[counter]=board[r][c];
-            counter++;
-            board[r][c]=board[i][j];
-            board[i][j]=board[r-1][c];//some modifications must be applied here******************
+        else if(strcmp(board[r][c], opponent_piece) == 0){
+                 memcpy(killed_arr[counter], board[r][c], 4);
+                 counter++;
+                 memcpy(board[r][c], board[i][j], 4);
+                 if(i % 2 == 0 && j % 2 == 0){
+                    memcpy(board[i][j], "-", 4);
+                     }
+                   else if(i % 2 == 1 && j % 2 == 1){
+                     memcpy(board[i][j], "-", 4);
+                    }
+                    else if(i % 2 == 1 && j % 2 == 0){
+                     memcpy(board[i][j], ".", 4);
+                     }
+                   else if(i % 2 == 0 && j % 2 == 1){
+                     memcpy(board[i][j], ".", 4);
+                     }
+
         }
-        else if(board[r][c]==friendly_piece){
+        else if(strcmp(board[r][c], friendly_piece) == 0){
             printf("Cannot eat friendly piece");
         }
     }
@@ -189,49 +216,49 @@ void queen(int i, int j, int r, int c){
 }
 void pawn(int i, int j, int r, int c){
     int firstMove=0;
-    if(board[i][j]==board[1][j] || board[i][j]==board[6][j]){
-        firstMove=1;
+    if(strcmp(board[i][j], board[1][j]) == 0 || strcmp(board[i][j], board[6][j]) == 0){
+        firstMove = 1;
     }
-    if(firstMove==1 && r-i==2)){
-        if(board[r][c]=='-'||board[r][c]=='.'){
-            char temp=board[r][c];
-            board[r][c]=board[i][j];
-            board[i][j]=temp;
+    if(firstMove == 1 && r-i == 2){
+        if(strcmp(board[r][c], "-") == 0 || strcmp(board[r][c], ".")){
+                char temp[4];
+                memcpy(temp, board[r][c], 4);
+                memcpy(board[r][c], board[i][j], 4);
+                memcpy(board[i][j], temp, 4);
         }
-        else if(board[r][c]==opponent_piece || board[r][c]==friendly_piece){
+        else if(strcmp(board[r][c], opponent_piece) == 0 || strcmp(board[r][c], friendly_piece) == 0){
             printf("Invalid move");
         }
     }
     else if(r-i==1){
-        if(board[r][c]=='-'){
-            board[r][c]=board[i][j];
-            board[i][j]='.';
+        if(strcmp(board[r][c], "-") == 0){
+            memcpy(board[r][c], board[i][j], 4);
+            memcpy(board[i][j], ".", 4);
         }
-        else if(board[r][c]=='.'){
-            board[r][c]=board[i][j];
-            board[i][j]='-';
+        else if(strcmp(board[r][c], ".") == 0){
+            memcpy(board[r][c], board[i][j], 4);
+            memcpy(board[i][j], "-", 4);
         }
-        else if(board[r][c]==opponent_piece || board[r][c]==friendly_piece){
+        else if(strcmp(board[r][c], opponent_piece) == 0 || strcmp(board[r][c], friendly_piece) == 0){
             printf("Invalid move");
         }
     }
-    else if(r-i=1 && c-j=1 && board[r][c]==opponent_piece || r-i=-1 && c-j==1 && board[r][c]==opponent_piece){
-            killed_arr[counter]=board[r][c];
-            counter++;
-            board[r][c]=board[i][j];
-             if(i % 2 == 0 && j % 2 == 0){
-                board[i][j] = '-' ;
-            }
-             else if(i % 2 == 1 && j % 2 == 1){
-                board[i][j] = '-' ;
-            }
-            else if(i % 2 == 1 && j % 2 == 0){
-                board[i][j] = '.' ;
-            }
-            else if(i % 2 == 0 && j % 2 == 1){
-                board[i][j] = '.' ;
-            }
-
+    else if(r-i = 1 && c-j = 1 && strcmp(board[r][c], opponent_piece) == 0 || r-i=-1 && c-j==1 && strcmp(board[r][c], opponent_piece) == 0){
+                memcpy(killed_arr[counter], board[r][c], 4);
+                counter++;
+                 memcpy(board[r][c], board[i][j], 4);
+                 if(i % 2 == 0 && j % 2 == 0){
+                    memcpy(board[i][j], "-", 4);
+                     }
+                   else if(i % 2 == 1 && j % 2 == 1){
+                     memcpy(board[i][j], "-", 4);
+                    }
+                    else if(i % 2 == 1 && j % 2 == 0){
+                     memcpy(board[i][j], ".", 4);
+                     }
+                   else if(i % 2 == 0 && j % 2 == 1){
+                     memcpy(board[i][j], ".", 4);
+                     }
     }
     else{
         printf("Invalid move");
@@ -244,41 +271,41 @@ void rock(int i, int j, int r, int c){
 
 }
 void king(int i, int j, int r, int c){
-    if(board[r][c]=='-' || board[r][c]=='.'){
+    if(strcmp(board[r][c], "-") == 0 || strcmp(board[r][c], ".") == 0){
 
-        if((r == i && c == j + 1) || (r == i && c == j - 1) || (r == i + 1 && c == j) || (r == i - 1 && c == j)){
+        if((r == i && c == j + 1) || (r == i && c == j - 1) || (r == i + 1 && c == j) || (r == i - 1 && c == j) || (r == i + 1 && c == j + 1) || (r == i + 1 && c == j - 1) || (r == i - 1 && c == j - 1) || (r == i - 1 && c == j + 1)){
 
-            board[r][c] = board[i][j] ;
+            memcpy(board[r][c], board[i][j], 4);
             if(i % 2 == 0 && j % 2 == 0){
-                board[i][j] = '-' ;
-            }
-             if(i % 2 == 1 && j % 2 == 1){
-                board[i][j] = '-' ;
-            }
-            if(i % 2 == 1 && j % 2 == 0){
-                board[i][j] = '.' ;
-            }
-            if(i % 2 == 0 && j % 2 == 1){
-                board[i][j] = '.' ;
-            }
+                    memcpy(board[i][j], "-", 4);
+              }
+               else if(i % 2 == 1 && j % 2 == 1){
+                     memcpy(board[i][j], "-", 4);
+              }
+               else if(i % 2 == 1 && j % 2 == 0){
+                     memcpy(board[i][j], ".", 4);
+              }
+               else if(i % 2 == 0 && j % 2 == 1){
+                     memcpy(board[i][j], ".", 4);
+              }
          }  else printf("Invalid move");
     }
-     else  if(board[r][c] == opponent_piece){
-                killed_arr[counter]=board[r][c];
+     else  if(strcmp(board[r][c], opponent_piece) == 0){
+                memcpy(killed_arr[counter], board[r][c], 4);
                 counter++;
-                board[r][c]=board[i][j];
-                if(i % 2 == 0 && j % 2 == 0){
-                    board[i][j] = '-' ;
-                }
-                if(i % 2 == 1 && j % 2 == 1){
-                    board[i][j] = '-' ;
-                }
-                if(i % 2 == 1 && j % 2 == 0){
-                    board[i][j] = '.' ;
-                }
-                if(i % 2 == 0 && j % 2 == 1){
-                    board[i][j] = '.' ;
-                }
+                 memcpy(board[r][c], board[i][j], 4);
+                 if(i % 2 == 0 && j % 2 == 0){
+                    memcpy(board[i][j], "-", 4);
+                     }
+                   else if(i % 2 == 1 && j % 2 == 1){
+                     memcpy(board[i][j], "-", 4);
+                    }
+                    else if(i % 2 == 1 && j % 2 == 0){
+                     memcpy(board[i][j], ".", 4);
+                     }
+                   else if(i % 2 == 0 && j % 2 == 1){
+                     memcpy(board[i][j], ".", 4);
+                     }
 
-     }  else    if(board[r][c] == friendly_piece)   printf("Cannot eat a friendly piece");
+     }  else    if(strcmp(board[r][c], friendly_piece) == 0)   printf("Cannot eat a friendly piece");
 }
