@@ -219,7 +219,19 @@ void pawn(int i, int j, int r, int c){
             killed_arr[counter]=board[r][c];
             counter++;
             board[r][c]=board[i][j];
-            board[i][j]='-';//some modifications must be applied here******************
+             if(i % 2 == 0 && j % 2 == 0){
+                board[i][j] = '-' ;
+            }
+             else if(i % 2 == 1 && j % 2 == 1){
+                board[i][j] = '-' ;
+            }
+            else if(i % 2 == 1 && j % 2 == 0){
+                board[i][j] = '.' ;
+            }
+            else if(i % 2 == 0 && j % 2 == 1){
+                board[i][j] = '.' ;
+            }
+
     }
     else{
         printf("Invalid move");

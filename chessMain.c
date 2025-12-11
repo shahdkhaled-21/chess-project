@@ -1,29 +1,29 @@
 #include <stdio.h>
-#include<stdlib.h>
+#include <stdlib.h>
 #include <string.h>
-char display(char board[8][8],char width_arr[8]){
+char display(char board[8][8][4],char width_arr[8][2]){
     for(int k=0 ; k<8 ; k++){
-        printf("   %c  ",width_arr[k]);
+        printf("      %s ",width_arr[k]);
     }
     printf("\n");
     for(int i = 0; i < 8; i++){
-        printf("%d",8-i);
+        printf("%d ",8-i);
         for(int j = 0; j <8; j++){
-            printf("  %c   ",board[i][j]);
+            printf("    %s   ",board[i][j]);
         }
         printf("\n\n");
     }
 }
 int main(){
-    char width_arr[8]={'A' , 'B' , 'C' , 'D' , 'E' , 'F' , 'G' , 'H'}
-    char board [8][8] = {{'R', 'N', 'B', 'Q', 'K', 'B', 'N', 'R'},
-                         {'P', 'P', 'P', 'P', 'P', 'P', 'P', 'P'}, 
-                         {'-', '.', '-', '.', '-', '.', '-', '.'},
-                         {'.', '-', '.', '-', '.', '-', '.', '-'},
-                         {'-', '.', '-', '.', '-', '.', '-', '.'},
-                         {'.', '-', '.', '-', '.', '-', '.', '-'},
-                         {'p', 'p', 'p', 'p', 'p', 'p', 'p', 'p'},
-                         {'r', 'n', 'b', 'q', 'k', 'b', 'n', 'r'}};
+    char width_arr[8][2]={"A" , "B" , "C" , "D" , "E" , "F" , "G" , "H"};
+    char board[8][8][4] = {{"\u265C","\u265E","\u265D","\u265B","\u265A","\u265D","\u265E","\u265C"},
+                         {"\u265F","\u265F","\u265F","\u265F","\u265F","\u265F","\u265F","\u265F"},
+                         {"-", ".", "-", ".", "-", ".", "-", "."},
+                         {".", "-", ".", "-", ".", "-", ".", "-"},
+                         {"-", ".", "-", ".", "-", ".", "-", "."},
+                         {".", "-", ".", "-", ".", "-", ".", "-"},
+                         {"\u2659","\u2659","\u2659","\u2659","\u2659","\u2659","\u2659","\u2659"},
+                         {"\u2656","\u2658","\u2657","\u2655","\u2654","\u2657","\u2658","\u2656"}};
     display(board , width_arr);
     char notation[8][8][3] = {{"A8", "B8", "C8", "D8", "E8", "F8", "G8", "H8"},
                               {"A7", "B7", "C7", "D7", "E7", "F7", "G7", "H7"}, 
