@@ -3,6 +3,7 @@
 #include <string.h>
 extern char board[8][8][4];
 extern int counter;
+extern en_passant;
 extern char killed_arr[32][4];
 extern char opponent_piece[4], friendly_piece[4];
 extern char whiteKing[4];
@@ -226,11 +227,13 @@ void queen(int i, int j, int r, int c){
     }
 }
 void pawn(int i, int j, int r, int c){
+    en_passant=0;
     int firstMove=0;
     if(strcmp(board[i][j], board[1][j]) == 0 || strcmp(board[i][j], board[6][j]) == 0){
         firstMove = 1;
     }
     if(firstMove == 1 && r-i == 2){
+        en_passant=1;
         if(strcmp(board[r][c], "-") == 0 || strcmp(board[r][c], ".")){
                 char temp[4];
                 memcpy(temp, board[r][c], 4);
@@ -667,5 +670,60 @@ void promotion(int i, int j, int r, int c, char underpromotion_piece[4]){
     }
     else{
         printf("Cannot promote the White pawn");
+    }
+}
+void en_passant(int i, int j , int r, int c){
+    int possible_en_passant=1;
+    if(strcmp(board[i][j],whitePawn)==0 && c-j==1 && r-i==1){
+        possible_en_passant=1;
+    }
+    if(possible_en_passant){
+        if(strcmp(board[r+1][c],blackPawn)==0 && en_passant){
+            memcpy(killed_arr[counter],blackPawn,4);
+            counter++;
+            memcpy(board[r][c],whitePawn,4);
+            if(i % 2 == 0 && j % 2 == 0){
+                memcpy(board[i][j], "-", 2);
+                memcpy(board[r+1][c],".",2);
+            }
+            if(i % 2 == 1 && j % 2 == 1){
+                memcpy(board[i][j], "-", 2);
+                memcpy(board[r+1][c],".",2);
+            }
+            if(i % 2 == 1 && j % 2 == 0){
+                memcpy(board[i][j], ".", 2);
+                memcpy(board[r+1][c],"-",2);
+            }
+            if(i % 2 == 0 && j % 2 == 1){
+                memcpy(board[i][j], ".", 2);
+                memcpy(board[r+1][c],"-",2);
+            }
+        }
+    }
+    if(strcmp(board[i][j],blackPawn)==0 && j-c==1 && i-r==1){
+        possible_en_passant=1;
+    }
+    if(possible_en_passant){
+        if(strcmp(board[r+1][c],whitePawn)==0 && en_passant){
+            memcpy(killed_arr[counter],whitePawn,4);
+            counter++;
+            memcpy(board[r][c],blackPawn,4);
+            if(i % 2 == 0 && j % 2 == 0){
+                memcpy(board[i][j], "-", 2);
+                memcpy(board[r+1][c],".",2);
+            }
+            if(i % 2 == 1 && j % 2 == 1){
+                memcpy(board[i][j], "-", 2);
+                memcpy(board[r+1][c],".",2);
+            }
+            if(i % 2 == 1 && j % 2 == 0){
+                memcpy(board[i][j], ".", 2);
+                memcpy(board[r+1][c],"-",2);
+            }
+            if(i % 2 == 0 && j % 2 == 1){
+                memcpy(board[i][j], ".", 2);
+                memcpy(board[r+1][c],"-",2);
+            }
+        }
     }
 }
