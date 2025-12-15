@@ -632,3 +632,40 @@ int isSquareAttacked(int r, int c){
     }
     return 0;
 }
+void promotion(int i, int j, int r, int c, char underpromotion_piece[4]){
+    int possible_promotion=0;
+    if(strcmp(board[i][j],blackPawn)==0 && i==6 && r-i==1 && c==j){
+        possible_promotion=1;
+    }
+    if(possible_promotion){
+        for(int i=0; i<counter ; i++){
+            int found=0;
+            if(underpromotion_piece[3]==killed_arr[i][3] && strcmp(underpromotion_piece,blackPawn)!=0){
+                found=1;
+            }
+        }
+        if(found){
+            memcpy(board[r][c],underpromotion_piece,4);
+        }
+    }
+    else{
+        printf("Cannot promote the Black pawn");
+    }
+    if(strcmp(board[i][j],whitePawn)==0 && i==1 && r-i==1 && c==j){
+        possible_promotion=1;
+    }
+    if(possible_promotion){
+        for(int i=0; i<counter ; i++){
+            int found=0;
+            if(underpromotion_piece[3]==killed_arr[i][3] && !strcmp(underpromotion_piece,whitePawn)!=0){
+                found=1;
+            }
+        }
+        if(found){
+            memcpy(board[r][c],underpromotion_piece,4);
+        }
+    }
+    else{
+        printf("Cannot promote the White pawn");
+    }
+}
