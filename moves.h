@@ -2,6 +2,7 @@
 #define MOVES_H
 extern char board[8][8][4];
 extern int counter;
+extern int en_passant;
 extern char killed_arr[32][4];
 extern char opponent_piece[4], friendly_piece[4];
 extern char whiteKing[4];
@@ -18,4 +19,6 @@ void castling(int i, int j, int r, int c);
 int haveMoved(char piece[4]);
 int inCheck();
 int isSquareAttacked(int i, int j);
+void promotion(int i, int j, int r, int c, underpromotion_piece);
+void en_passant(int i, int j, int r, int c);
 #endif
