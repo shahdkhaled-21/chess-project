@@ -1,8 +1,10 @@
 #ifndef MOVES_H
 #define MOVES_H
 extern char board[8][8][4];
-extern int counter;
-extern char killed_arr[32][4];
+extern int counterW;
+extern int counterB;
+extern char killed_arrW[15][4];
+extern char killed_arrB[15][4];
 extern char opponent_piece[4], friendly_piece[4];
 extern char whiteKing[4];
 extern char whiteRock[4];

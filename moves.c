@@ -30,23 +30,29 @@ void knight(int i, int j, int r, int c){
             }
         }
         else if(strcmp(board[r][c], opponent_piece) == 0){
-                memcpy(killed_arr[counter], board[r][c], 4);
-                counter++;
-                memcpy(board[r][c], board[i][j], 4);
-                moved[r][c] = 1;
-                moved[i][j] = 0;
-                if(i % 2 == 0 && j % 2 == 0){
-                    memcpy(board[i][j], "-", 2);
-                 }
-                if(i % 2 == 1 && j % 2 == 1){
-                     memcpy(board[i][j], "-", 2);
-                 }
-                if(i % 2 == 1 && j % 2 == 0){
-                     memcpy(board[i][j], ".", 2);
-                 }
-                if(i % 2 == 0 && j % 2 == 1){
-                     memcpy(board[i][j], ".", 2);
-                 }
+            if(isWhite(opponent_piece)){
+                memcpy(killed_arrW[counterW], board[r][c], 4);
+                counterW++
+            }
+            else{
+                memcpy(killed_arrB[counterB], board[r][c], 4);
+                counterB++
+            }
+            memcpy(board[r][c], board[i][j], 4);
+            moved[r][c] = 1;
+            moved[i][j] = 0;
+            if(i % 2 == 0 && j % 2 == 0){
+            memcpy(board[i][j], "-", 2);
+            }
+            if(i % 2 == 1 && j % 2 == 1){
+                memcpy(board[i][j], "-", 2);
+            }
+            if(i % 2 == 1 && j % 2 == 0){
+                memcpy(board[i][j], ".", 2);
+            }
+            if(i % 2 == 0 && j % 2 == 1){
+                memcpy(board[i][j], ".", 2);
+            }
 
         }
         else if(strcmp(board[r][c], friendly_piece) == 0){
@@ -184,10 +190,10 @@ void queen(int i, int j, int r, int c){
             moved[i][j] = 0;
         }
         else if(strcmp(board[r][c], "-") == 0 && i==r && r&1==0 || strcmp(board[r][c], "-") == 0 && j == c && c&1 == 0){
-             memcpy(board[r][c], board[i][j], 4);
-             memcpy(board[i][j], "-", 2);
-             moved[r][c] = 1;
-             moved[i][j] = 0;
+            memcpy(board[r][c], board[i][j], 4);
+            memcpy(board[i][j], "-", 2);
+            moved[r][c] = 1;
+            moved[i][j] = 0;
         }
         else if(strcmp(board[r][c], ".") == 0 && i == r && r&1 == 0 || strcmp(board[r][c], ".") == 0 && j == c && c&1 == 0){
             memcpy(board[r][c], board[i][j], 4);
@@ -202,8 +208,14 @@ void queen(int i, int j, int r, int c){
             moved[i][j] = 0;
         }
         else if(strcmp(board[r][c], opponent_piece) == 0){
-            memcpy(killed_arr[counter], board[r][c], 4);
-            counter++;
+            if(isWhite(opponent_piece)){
+                memcpy(killed_arrW[counterW], board[r][c], 4);
+                counterW++
+            }
+            else{
+                memcpy(killed_arrB[counterB], board[r][c], 4);
+                counterB++
+            }
             memcpy(board[r][c], board[i][j], 4);
             moved[r][c] = 1;
             moved[i][j] = 0;
@@ -270,23 +282,29 @@ void pawn(int i, int j, int r, int c){
             }
         }
         else if(i-r == 1 && c-j == 1 && strcmp(board[r][c], opponent_piece) == 0 || i-r == 1 && j-c == 1 && strcmp(board[r][c], opponent_piece) == 0){
-                memcpy(killed_arr[counter], board[r][c], 4);
-                counter++;
-                memcpy(board[r][c], board[i][j], 4);
-                moved[r][c] = 1;
-                moved[i][j] = 0;
-                if(i % 2 == 0 && j % 2 == 0){
-                    memcpy(board[i][j], "-", 2);
-                }
-                if(i % 2 == 1 && j % 2 == 1){
-                    memcpy(board[i][j], "-", 2);
-                }
-                if(i % 2 == 1 && j % 2 == 0){
-                    memcpy(board[i][j], ".", 2);
-                }
-                if(i % 2 == 0 && j % 2 == 1){
-                    memcpy(board[i][j], ".", 2);
-                }
+            if(isWhite(opponent_piece)){
+                memcpy(killed_arrW[counterW], board[r][c], 4);
+                counterW++
+            }
+            else{
+                memcpy(killed_arrB[counterB], board[r][c], 4);
+                counterB++
+            }
+            memcpy(board[r][c], board[i][j], 4);
+            moved[r][c] = 1;
+            moved[i][j] = 0;
+            if(i % 2 == 0 && j % 2 == 0){
+                memcpy(board[i][j], "-", 2);
+            }
+            if(i % 2 == 1 && j % 2 == 1){
+                memcpy(board[i][j], "-", 2);
+            }
+            if(i % 2 == 1 && j % 2 == 0){
+                memcpy(board[i][j], ".", 2);
+            }
+            if(i % 2 == 0 && j % 2 == 1){
+                memcpy(board[i][j], ".", 2);
+            }
         }
         else{
             invalid_move=1;
@@ -330,23 +348,29 @@ void pawn(int i, int j, int r, int c){
             }
         }
         else if(r-i == 1 && c-j == 1 && strcmp(board[r][c], opponent_piece) == 0 || r-i == 1 && j-c == 1 && strcmp(board[r][c], opponent_piece) == 0){
-                memcpy(killed_arr[counter], board[r][c], 4);
-                counter++;
-                memcpy(board[r][c], board[i][j], 4);
-                moved[r][c] = 1;
-                moved[i][j] = 0;
-                if(i % 2 == 0 && j % 2 == 0){
-                    memcpy(board[i][j], "-", 2);
-                }
-                if(i % 2 == 1 && j % 2 == 1){
-                    memcpy(board[i][j], "-", 2);
-                }
-                if(i % 2 == 1 && j % 2 == 0){
-                    memcpy(board[i][j], ".", 2);
-                }
-                if(i % 2 == 0 && j % 2 == 1){
-                    memcpy(board[i][j], ".", 2);
-                }
+            if(isWhite(opponent_piece)){
+                memcpy(killed_arrW[counterW], board[r][c], 4);
+                counterW++
+            }
+            else{
+                memcpy(killed_arrB[counterB], board[r][c], 4);
+                counterB++
+            }
+            memcpy(board[r][c], board[i][j], 4);
+            moved[r][c] = 1;
+            moved[i][j] = 0;
+            if(i % 2 == 0 && j % 2 == 0){
+                memcpy(board[i][j], "-", 2);
+            }
+            if(i % 2 == 1 && j % 2 == 1){
+                memcpy(board[i][j], "-", 2);
+            }
+            if(i % 2 == 1 && j % 2 == 0){
+                memcpy(board[i][j], ".", 2);
+            }
+            if(i % 2 == 0 && j % 2 == 1){
+                memcpy(board[i][j], ".", 2);
+            }
         }
         else{
             invalid_move=1;
@@ -427,23 +451,29 @@ void bishop(int i, int j, int r, int c){
                         memcpy(board[i][j], ".", 2);
                 }
             }  else  if(strcmp(board[r][c], opponent_piece) == 0){
-                        memcpy(killed_arr[counter], board[r][c], 4);
-                        counter++;
-                        memcpy(board[r][c], board[i][j], 4);
-                        moved[r][c] = 1;
-                        moved[i][j] = 0;
-                        if(i % 2 == 0 && j % 2 == 0){
-                             memcpy(board[i][j], "-", 2);
-                         }
-                        if(i % 2 == 1 && j % 2 == 1){
-                             memcpy(board[i][j], "-", 2);
-                         }
-                        if(i % 2 == 1 && j % 2 == 0){
-                             memcpy(board[i][j], ".", 2);
-                         }
-                        if(i % 2 == 0 && j % 2 == 1){
-                             memcpy(board[i][j], ".", 2);
-                         }
+                    if(isWhite(opponent_piece)){
+                        memcpy(killed_arrW[counterW], board[r][c], 4);
+                        counterW++
+                    }
+                    else{
+                        memcpy(killed_arrB[counterB], board[r][c], 4);
+                        counterB++
+                    }
+                    memcpy(board[r][c], board[i][j], 4);
+                    moved[r][c] = 1;
+                    moved[i][j] = 0;
+                    if(i % 2 == 0 && j % 2 == 0){
+                        memcpy(board[i][j], "-", 2);
+                    }
+                    if(i % 2 == 1 && j % 2 == 1){
+                        memcpy(board[i][j], "-", 2);
+                    }
+                    if(i % 2 == 1 && j % 2 == 0){
+                        memcpy(board[i][j], ".", 2);
+                    }
+                    if(i % 2 == 0 && j % 2 == 1){
+                        memcpy(board[i][j], ".", 2);
+                    }
 
         }  else if(strcmp(board[r][c], friendly_piece) == 0){ 
             invalid_move=1;   
@@ -533,8 +563,14 @@ void rock(int i, int j, int r, int c){
                 }
             }  
             else  if(strcmp(board[r][c], opponent_piece) == 0){
-                    memcpy(killed_arr[counter], board[r][c], 4);
-                    counter++;
+                    if(isWhite(opponent_piece)){
+                        memcpy(killed_arrW[counterW], board[r][c], 4);
+                        counterW++
+                    }
+                    else{
+                        memcpy(killed_arrB[counterB], board[r][c], 4);
+                        counterB++
+                    }
                     moved[r][c] = 1;
                     moved[i][j] = 0;
                     memcpy(board[r][c], board[i][j], 4);
@@ -592,8 +628,14 @@ void king(int i, int j, int r, int c){
     }
      else  if(strcmp(board[r][c], opponent_piece) == 0){
                 if(strcmp(opponent_piece, "\u2654") != 0 || strcmp(opponent_piece, "\u265A") != 0){
-                        memcpy(killed_arr[counter], board[r][c], 4);
-                        counter++;
+                        if(isWhite(opponent_piece)){
+                            memcpy(killed_arrW[counterW], board[r][c], 4);
+                            counterW++
+                        }
+                        else{
+                            memcpy(killed_arrB[counterB], board[r][c], 4);
+                            counterB++
+                        }
                         moved[r][c] = 1;
                         moved[i][j] = 0;
                         memcpy(board[r][c], board[i][j], 4);
@@ -780,16 +822,16 @@ void promotion(int i, int j, int r, int c, char promotion_piece[4]){
         possible_promotion=1;
     }
     if(possible_promotion){
-        for(int i=0; i<counter ; i++){
+        for(int i=0; i<counterB ; i++){
             int found=0;
-            if(promotion_piece[3]==killed_arr[i][3] && strcmp(promotion_piece,blackPawn)!=0 && strcmp(promotion_piece,friendly_piece)==0){
+            if(str(promotion_piece,killed_arrB[i])==0){
                 found=1;
             }
         }
         if(found){
             memcpy(board[r][c],promotion_piece,4);
-            memcpy(killed_arr[counter],blackPawn,4);
-            counter++;
+            memcpy(killed_arrB[counterB], blackPawn, 4);
+            counterB++;
             moved[r][c] = 1;
             moved[i][j] = 0;
         }
@@ -810,15 +852,16 @@ void promotion(int i, int j, int r, int c, char promotion_piece[4]){
         possible_promotion=1;
     }
     if(possible_promotion){
-        for(int i=0; i<counter ; i++){
+        for(int i=0; i<counterB ; i++){
             int found=0;
-            if(promotion_piece[3]==killed_arr[i][3] && strcmp(promotion_piece,blackPawn)!=0 && strcmp(promotion_piece,friendly_piece)==0){
+            if(strcmp(promotion_piece,killed_arrB[i])==0){
                 found=1;
             }
         }
         if(found){
-            memcpy(killed_arr[counter],board[r][c],4);
-            counter++;
+            memcpy(board[r][c],promotion_piece,4);
+            memcpy(killed_arrB[counterB], blackPawn, 4);
+            counterB++;
             memcpy(board[r][c],promotion_piece,4);
             memcpy(killed_arr[counter],blackPawn,4);
             counter++;
@@ -846,16 +889,16 @@ void promotion(int i, int j, int r, int c, char promotion_piece[4]){
         possible_promotion=1;
     }
     if(possible_promotion){
-        for(int i=0; i<counter ; i++){
+        for(int i=0; i<counterW ; i++){
             int found=0;
-            if(promotion_piece[3]==killed_arr[i][3] && strcmp(promotion_piece,whitePawn)!=0 && strcmp(promotion_piece,friendly_piece)==0){
+            if(strcmp(promotion_piece,killed_arrW[i])==0){
                 found=1;
             }
         }
         if(found){
             memcpy(board[r][c],promotion_piece,4);
-            memcpy(killed_arr[counter],whitePawn,4);
-            counter++;
+            memcpy(killed_arrW[counterW],whitePawn,4);
+            counterW++;
             moved[r][c] = 1;
             moved[i][j] = 0;
         }
@@ -876,15 +919,16 @@ void promotion(int i, int j, int r, int c, char promotion_piece[4]){
         possible_promotion=1;
     }
     if(possible_promotion){
-        for(int i=0; i<counter ; i++){
+        for(int i=0; i<counterW ; i++){
             int found=0;
-            if(promotion_piece[3]==killed_arr[i][3] && strcmp(promotion_piece_whitePawn)!=0 && strcmp(promotion_piece,friendly_piece)==0){
+            if(strcmp(promotion_piece,killed_arrW[i])==0){
                 found=1;
             }
         }
         if(found){
-            memcpy(killed_arr[counter],board[r][c],4);
-            counter++;
+            memcpy(board[r][c],promotion_piece,4);
+            memcpy(killed_arrW[counterW],whitePawn,4);
+            counterW++;
             memcpy(board[r][c],promotion_piece,4);
             memcpy(killed_arr[counter],whitePawn,4);
             counter++;
