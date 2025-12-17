@@ -36,6 +36,7 @@ int isBlack(char piece[4]){
     } return 0;
 }
 
+int moved[8][8] = {0};
 int counter = 0;
 char board[8][8][4] =   {{"\u265C","\u265E","\u265D","\u265B","\u265A","\u265D","\u265E","\u265C"},
                          {"\u265F","\u265F","\u265F","\u265F","\u265F","\u265F","\u265F","\u265F"},
