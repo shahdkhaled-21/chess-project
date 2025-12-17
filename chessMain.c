@@ -22,11 +22,6 @@ char blackQueen[4]  = "\u265B";
 char black[6][4] = {"\u265D", "\u265A", "\u265C", "\u265E", "\u265F", "\u265B"};
 char white[6][4] = {"\u2654", "\u2655", "\u2656", "\u2657", "\u2658", "\u2659"};
 
-char promotionPiecesW[4][12]={"whiteRook","whiteBishop","whiteKnight","whiteQueen"};
-char promotionPiecesB[4][12]={"blackRook","blackBishop","blackKnight","blackQueen"};
-
-char moves[9][10] = {"promotion","castling","en passant","pawn","king","queen","bishop","rook","knight"};
-
 int isWhite(char piece[4]){
     for(int i = 0; i < 6; i++){
         if(strcmp(piece, white[i]) == 0){
@@ -41,49 +36,6 @@ int isBlack(char piece[4]){
             return 1;
         }
     } return 0;
-}
-
-void which_move(char moves[9][10]){
-    char move[10];
-    fgets(move , 10 , stdin);
-    switch(⁇⁇){//// NOT COMPLETED***********
-        case(!!!){
-            void king;
-            break;
-        }
-        case(!!!){
-            void rook;
-            break;
-        }
-        case(!!!){
-            void bishop;
-            break;
-        }
-        case(!!!){
-            void knight;
-            break;
-        }
-        case(!!!){
-            void pawn;
-            break;
-        }
-        case(!!!){
-            void queen;
-            break;
-        }
-        case(!!!){
-            void castling;
-            break;
-        }
-        case(!!!){
-            void promotion;
-            break;
-        }
-        case(!!!){
-            void en_passant;
-            break;
-        }
-    }
 }
 
 void White_Player(char notation[8][8][3],char board[8][8][4]){
