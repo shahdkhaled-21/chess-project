@@ -1,4 +1,4 @@
-
+all: chessMain
 
 chessMain: chessMain.o moves.o
 		gcc chessMain.o moves.o -o chessMain
