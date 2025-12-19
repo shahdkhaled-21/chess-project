@@ -159,32 +159,32 @@ void White_Player(char board[8][8][4]){
     while(invalid_move==1){
         invalid_move=1;
         if((u8)board[i][j][2] == WhiteKing){
-            king( i, j, r, c);
+            king( i, j, r, c, colour);
             //castling and check***************
         }
         else if((u8)board[i][j][2] == WhiteQueen){
-            queen( i, j, r, c);
+            queen( i, j, r, c, colour);
             if(invalid_move==1){
                 continue;
             }
             break;
         }
         else if((u8)board[i][j][2] == WhiteRook){
-            rook( i, j, r, c);
+            rook( i, j, r, c, colour);
             if(invalid_move==1){
                 continue;
             }
             break;
         }
         else if((u8)board[i][j][2] == WhiteBishop){
-            bishop( i, j, r, c);
+            bishop( i, j, r, c, colour);
             if(invalid_move==1){
                 continue;
             }
             break;
         }
         else if((u8)board[i][j][2] == WhiteKnight){
-            knight( i, j, r, c);
+            knight( i, j, r, c, colour);
             if(invalid_move==1){
                 continue;
             }
@@ -276,32 +276,32 @@ void Black_Player(char board[8][8][4]){
     while(invalid_move==1){
         invalid_move=1;
         if((u8) board[i][j][2] == BlackKing){
-            king( i, j, r, c);
+            king( i, j, r, c, colour);
             //castling and check***************
         }
         else if((u8) board[i][j][2] == BlackQueen){
-            queen( i, j, r, c);
+            queen( i, j, r, c, colour);
             if(invalid_move==1){
                 continue;
             }
             break;
         }
         else if((u8) board[i][j][2] == BlackRook){
-            rook( i, j, r, c);
+            rook( i, j, r, c, colour);
             if(invalid_move==1){
                 continue;
             }
             break;
         }
         else if((u8) board[i][j][2] == BlackBishop){
-            bishop( i, j, r, c);
+            bishop( i, j, r, c, colour);
             if(invalid_move==1){
                 continue;
             }
             break;
         }
         else if((u8) board[i][j][2] == BlackKnight){
-            knight( i, j, r, c);
+            knight( i, j, r, c, colour);
             if(invalid_move==1){
                 continue;
             }
@@ -379,5 +379,6 @@ int main(){
     Black_Player(board);
     return 0;
 }
+
 
 
