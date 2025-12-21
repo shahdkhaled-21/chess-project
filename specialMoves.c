@@ -15,7 +15,6 @@ extern char blackRook[4];
 extern int moved[8][8];
 extern int checking_checkmate;
 extern int checking_stalemate;
-extern opponent_piece[4];
 
 typedef unsigned char u8;
 
@@ -366,9 +365,9 @@ void promotion(int i, int j, int r, int c, char promotion_piece[4]){
         possible_promotion=1;
     }
     if(possible_promotion){
-        for(int i=0; i<counterB ; i++){
+        for(int s=0; s<counterB ; s++){
             
-            if((u8) promotion_piece[2] == (u8) killed_arrB[i][2] && (u8) promotion_piece[2] >= BlackQueen && (u8) promotion_piece[2] <= BlackKnight){
+            if((u8) promotion_piece[2] == (u8) killed_arrB[s][2] && (u8) promotion_piece[2] >= BlackQueen && (u8) promotion_piece[2] <= BlackKnight){
                 found=1;
                 break;
             }
@@ -376,7 +375,7 @@ void promotion(int i, int j, int r, int c, char promotion_piece[4]){
         if(found){
             memcpy(board[r][c],promotion_piece,4);
             counterB--;
-            memcpy(killed_arrB[counterB], "\u265F", 4);
+            memcpy(killed_arrB[counterB], board[i][j], 4);
             counterB++;
             moved[r][c] = 1;
             moved[i][j] = 0;
@@ -387,20 +386,20 @@ void promotion(int i, int j, int r, int c, char promotion_piece[4]){
         possible_promotion=1;
     }
     if(possible_promotion){
-        for(int i=0; i<counterB ; i++){
+        for(int s=0; s<counterB ; s++){
             int found=0;
-            if((u8) promotion_piece[2] == (u8) killed_arrB[i][2] && (u8) promotion_piece[2] >= BlackQueen && (u8) promotion_piece[2] <= BlackKnight){
+            if((u8) promotion_piece[2] == (u8) killed_arrB[s][2] && (u8) promotion_piece[2] >= BlackQueen && (u8) promotion_piece[2] <= BlackKnight){
                 found=1;
                 break;
             }
         }
         if(found){
+            memcpy(killed_arrW[counterW], board[r][c], 4);
+            counterW++;
             memcpy(board[r][c],promotion_piece,4);
             counterB--;
-            memcpy(killed_arrB[counterB], "\u265F", 4);
+            memcpy(killed_arrB[counterB], board[i][j], 4);
             counterB++;
-            memcpy(killed_arrW[counterW], opponent_piece, 4);
-            counterW++;
             moved[r][c] = 1;
             moved[i][j] = 0;
         }
@@ -414,9 +413,9 @@ void promotion(int i, int j, int r, int c, char promotion_piece[4]){
         possible_promotion=1;
     }
     if(possible_promotion){
-        for(int i=0; i<counterW ; i++){
+        for(int s=0; s<counterW ; s++){
             int found=0;
-            if((u8) promotion_piece[2] == (u8) killed_arrW[i][2] && (u8) promotion_piece[2] >= WhiteQueen && (u8) promotion_piece[2] <= WhiteKnight){
+            if((u8) promotion_piece[2] == (u8) killed_arrW[s][2] && (u8) promotion_piece[2] >= WhiteQueen && (u8) promotion_piece[2] <= WhiteKnight){
                 found=1;
                 break;
             }
@@ -424,7 +423,7 @@ void promotion(int i, int j, int r, int c, char promotion_piece[4]){
         if(found){
             memcpy(board[r][c],promotion_piece,4);
             counterW--;
-            memcpy(killed_arrW[counterW], "\u2659",4);
+            memcpy(killed_arrW[counterW], board[i][j],4);
             counterW++;
             moved[r][c] = 1;
             moved[i][j] = 0;
@@ -435,20 +434,20 @@ void promotion(int i, int j, int r, int c, char promotion_piece[4]){
         possible_promotion=1;
     }
     if(possible_promotion){
-        for(int i=0; i<counterW ; i++){
+        for(int s=0; s<counterW ; s++){
             int found=0;
-            if((u8) promotion_piece[2] == (u8) killed_arrW[i][2] && (u8) promotion_piece[2] >= WhiteQueen && (u8) promotion_piece[2] <= WhiteKnight){
+            if((u8) promotion_piece[2] == (u8) killed_arrW[s][2] && (u8) promotion_piece[2] >= WhiteQueen && (u8) promotion_piece[2] <= WhiteKnight){
                 found=1;
                 break;
             }
         }
         if(found){
+            memcpy(killed_arrB[counterB],board[r][c],4);
+            counterB++;
             memcpy(board[r][c],promotion_piece,4);
             counterW--;
-            memcpy(killed_arrW[counterW],"\u2659",4);
+            memcpy(killed_arrW[counterW],board[i][j],4);
             counterW++;
-            memcpy(killed_arrB[counterB],opponent_piece,4);
-            counterB++;
             moved[r][c] = 1;
             moved[i][j] = 0;
         }

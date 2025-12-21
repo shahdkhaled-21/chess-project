@@ -10,7 +10,7 @@ typedef struct{
 char display(char board[8][8][4],char width_arr[8][2]);
 void Black_Player(char board[8][8][4]);
 void White_Player(char board[8][8][4]);
-int piece_colour(int r, int c);
+int piece_colour(char piece[4]);
 int isBlack(char piece[4]);
 int isWhite(char piece[4]);
 void initialize_history(History history);

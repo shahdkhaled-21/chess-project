@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 extern char board[8][8][4];
 extern int i, j, r, c;
@@ -13,7 +14,6 @@ extern char whiteRook[4];
 extern char blackKing[4];
 extern char blackRook[4];
 extern int moved[8][8];
-extern char opponent_piece[4];
 extern int checking_stalemate;
 
 typedef unsigned char u8;
@@ -35,6 +35,31 @@ typedef unsigned char u8;
 #define BlackPawn 0x9F
 extern int checking_checkmate;
 
+int isWhite(char piece[4]){
+    u8 val = (u8)piece[2];
+    if(val >= WhiteKing && val <= WhitePawn){
+        return 1;
+    }
+    return 0;
+}
+
+int isBlack(char piece[4]){
+    u8 val = (u8)piece[2];
+    if(val >= BlackKing && val <= BlackPawn){
+        return 1;
+    }
+    return 0;
+}
+
+int piece_colour(char piece[4]){
+    if(isWhite(piece)){
+        return 0;
+    }
+    else{
+        return 1;
+    }  
+}
+
 void change(int i, int j){
     if(i % 2 == 0 && j % 2 == 0){
         memcpy(board[i][j], "-", 2);
@@ -51,8 +76,9 @@ void change(int i, int j){
 }
 
 void knight(int i, int j, int r, int c, int colour){
-    int invalid_move=0;
-    if(abs(r-i)==1 && abs(c-j)==2 || abs(r-i)==3 && abs(c-j)==1){
+    int invalid_move;
+    if(abs(r-i)==1 && abs(c-j)==2 || abs(r-i)==2 && abs(c-j)==1){
+        invalid_move=0;
         if(board[r][c][0] == '-' || board[r][c][0] == '.'){
             char temp[4];
             memcpy(temp, board[r][c], 4);
@@ -67,6 +93,7 @@ void knight(int i, int j, int r, int c, int colour){
             }
         }
         else if(piece_colour(board[r][c]) != colour){
+            invalid_move=0;
             if(isWhite(board[r][c])){
                 memcpy(killed_arrW[counterW], board[r][c], 4);
                 counterW++;
@@ -82,12 +109,12 @@ void knight(int i, int j, int r, int c, int colour){
         }
         else if(piece_colour(board[r][c]) == colour){
             invalid_move=1;
-            if(!checking_checkmate && !checking_stalemate) printf("Cannot eat a friendly piece");
+            if(!checking_checkmate && !checking_stalemate) printf("Cannot eat a friendly piece\n");
         }
     }
     else{
         invalid_move=1;
-        if(!checking_checkmate && !checking_stalemate) printf("Invalid move");
+        if(!checking_checkmate && !checking_stalemate) printf("Invalid move\n");
     }
 }
 
@@ -249,12 +276,12 @@ void queen(int i, int j, int r, int c, int colour){
         }
         else if(piece_colour(board[r][c]) == colour){
             invalid_move=1;
-            if(!checking_checkmate && !checking_stalemate) printf("Cannot eat friendly piece");
+            if(!checking_checkmate && !checking_stalemate) printf("Cannot eat friendly piece\n");
         }
     }
     else{
         invalid_move=1;
-        if(!checking_checkmate && !checking_stalemate) printf("Invalid move");
+        if(!checking_checkmate && !checking_stalemate) printf("Invalid move\n");
     }
 }
 
@@ -277,7 +304,7 @@ void pawn(int i, int j, int r, int c){
             }
             else if(isBlack(board[r][c]) || isWhite(board[r][c])){
                 invalid_move=1;
-                if(!checking_checkmate && !checking_stalemate) printf("Invalid move");
+                if(!checking_checkmate && !checking_stalemate) printf("Invalid move\n");
             }
         }
         else if(i-r==1 && j==c){
@@ -295,7 +322,7 @@ void pawn(int i, int j, int r, int c){
             }
             else if(isBlack(board[r][c]) || isWhite(board[r][c])){
                 invalid_move=1;
-                if(!checking_checkmate && !checking_stalemate) printf("Invalid move");
+                if(!checking_checkmate && !checking_stalemate) printf("Invalid move\n");
             }
         }
         else if(i-r == 1 && c-j == 1 && isBlack(board[r][c]) || i-r == 1 && j-c == 1 && isBlack(board[r][c])){
@@ -336,7 +363,7 @@ void pawn(int i, int j, int r, int c){
         }
         else{
             invalid_move=1;
-            if(!checking_checkmate && !checking_stalemate) printf("Invalid move");
+            if(!checking_checkmate && !checking_stalemate) printf("Invalid move\n");
         }
     }
     else if(isBlack(board[i][j])){
@@ -354,7 +381,7 @@ void pawn(int i, int j, int r, int c){
             }
             else if(isWhite(board[r][c]) || isBlack(board[r][c])){
                 invalid_move=1;
-                if(!checking_checkmate && !checking_stalemate) printf("Invalid move");
+                if(!checking_checkmate && !checking_stalemate) printf("Invalid move\n");
             }
         }
         else if(r-i==1 && j==c){
@@ -372,7 +399,7 @@ void pawn(int i, int j, int r, int c){
             }
             else if(isWhite(board[r][c]) || isBlack(board[r][c])){
                 invalid_move=1;
-                if(!checking_checkmate && !checking_stalemate) printf("Invalid move");
+                if(!checking_checkmate && !checking_stalemate) printf("Invalid move\n");
             }
         }
         else if(r-i == 1 && c-j == 1 && isWhite(board[r][c]) || r-i == 1 && j-c == 1 && isWhite(board[r][c])){
@@ -413,7 +440,7 @@ void pawn(int i, int j, int r, int c){
         }
         else{
             invalid_move=1;
-            if(!checking_checkmate && !checking_stalemate) printf("Invalid move");
+            if(!checking_checkmate && !checking_stalemate) printf("Invalid move\n");
         }
     }
 }
@@ -480,7 +507,7 @@ void bishop(int i, int j, int r, int c, int colour){
                 moved[i][j] = 0;
                 change( i, j);
             }  else  if(piece_colour(board[r][c]) != colour){
-                    if(isWhite(opponent_piece)){
+                    if(isWhite(board[r][c])){
                         memcpy(killed_arrW[counterW], board[r][c], 4);
                         counterW++;
                     }
@@ -495,16 +522,16 @@ void bishop(int i, int j, int r, int c, int colour){
 
         }  else if(piece_colour(board[r][c]) == colour){ 
             invalid_move=1;   
-            if(!checking_checkmate && !checking_stalemate) printf("Cannot eat a friendly piece");
+            if(!checking_checkmate && !checking_stalemate) printf("Cannot eat a friendly piece\n");
         }
       }
       else{
         invalid_move=1;
-        if(!checking_checkmate && !checking_stalemate) printf("Invalid move");
+        if(!checking_checkmate && !checking_stalemate) printf("Invalid move\n");
       }
     }else{ 
         invalid_move=1;
-        if(!checking_checkmate && !checking_stalemate) printf("Invalid move");
+        if(!checking_checkmate && !checking_stalemate) printf("Invalid move\n");
     }
 }
 
@@ -587,16 +614,16 @@ void rook(int i, int j, int r, int c, int colour){
         }
           else if(piece_colour(board[r][c]) == colour){
             invalid_move=1;   
-            if(!checking_checkmate && !checking_stalemate) printf("Cannot eat a friendly piece");
+            if(!checking_checkmate && !checking_stalemate) printf("Cannot eat a friendly piece\n");
         }
     }
       else{
         invalid_move=1;
-        if(!checking_checkmate && !checking_stalemate) printf("Invalid move");
+        if(!checking_checkmate && !checking_stalemate) printf("Invalid move\n");
       }
     }else{
         invalid_move=1;
-        if(!checking_checkmate && !checking_stalemate) printf("Invalid move");
+        if(!checking_checkmate && !checking_stalemate) printf("Invalid move\n");
     }
 }
 
@@ -610,7 +637,7 @@ void king(int i, int j, int r, int c, int colour){
             change( i, j);
          }  else{
             invalid_move=1;
-            if(!checking_checkmate && !checking_stalemate) printf("Invalid move");
+            if(!checking_checkmate && !checking_stalemate) printf("Invalid move\n");
          }
     }
      else  if(piece_colour(board[r][c]) != colour){
@@ -629,11 +656,11 @@ void king(int i, int j, int r, int c, int colour){
                         change( i, j);
                     }else{
                         invalid_move=1;
-                        if(!checking_checkmate && !checking_stalemate) printf("Invalid move");
+                        if(!checking_checkmate && !checking_stalemate) printf("Invalid move\n");
                     }
 
      }  else if(piece_colour(board[r][c]) == colour){
         invalid_move=1;
-        if(!checking_checkmate && !checking_stalemate) printf("Cannot eat a friendly piece");
+        if(!checking_checkmate && !checking_stalemate) printf("Cannot eat a friendly piece\n");
      }
 }

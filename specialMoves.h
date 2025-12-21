@@ -14,7 +14,6 @@ extern char blackKing[4];
 extern char blackRook[4];
 extern int moved[8][8];
 extern int checking_checkmate;
-extern char opponent_piece[4];
 
 void castling(int i, int j, int r, int c);
 int haveMovedAt(int r, int c);
