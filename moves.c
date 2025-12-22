@@ -76,9 +76,8 @@ void change(int i, int j){
 }
 
 void knight(int i, int j, int r, int c, int colour){
-    int invalid_move;
+    invalid_move = 0;
     if(abs(r-i)==1 && abs(c-j)==2 || abs(r-i)==2 && abs(c-j)==1){
-        invalid_move=0;
         if(board[r][c][0] == '-' || board[r][c][0] == '.'){
             char temp[4];
             memcpy(temp, board[r][c], 4);
@@ -93,7 +92,6 @@ void knight(int i, int j, int r, int c, int colour){
             }
         }
         else if(piece_colour(board[r][c]) != colour){
-            invalid_move=0;
             if(isWhite(board[r][c])){
                 memcpy(killed_arrW[counterW], board[r][c], 4);
                 counterW++;
@@ -119,10 +117,11 @@ void knight(int i, int j, int r, int c, int colour){
 }
 
 void queen(int i, int j, int r, int c, int colour){
-    int invalid_move=0;
-    int k=i;int p=j;int emptyPath=0;
-    if(abs(i-r)==abs(j-c)){
+    invalid_move = 0;
+    int k; int p; int emptyPath=1;
+    if(abs(r - i) == abs(c - j)){
         if(i>r && j>c){
+            k = i-1; p = j-1;
             while(k>r && p>c){
                 if(board[k][p][0] == '.' || board[k][p][0] == '-'){
                     emptyPath = 1;
@@ -136,6 +135,7 @@ void queen(int i, int j, int r, int c, int colour){
             }
         }
         else if(i<r && j<c){
+            k = i+1; p = j+1;
             while(k<r && p<c){
                 if(board[k][p][0] == '.' || board[k][p][0] == '-'){
                     emptyPath = 1;
@@ -149,6 +149,7 @@ void queen(int i, int j, int r, int c, int colour){
             }
         }
         else if(i<r && j>c){
+            k = i+1; p = j-1;
             while(k<r && p>c){
                 if(board[k][p][0] == '.' || board[k][p][0] == '-'){
                     emptyPath = 1;
@@ -162,7 +163,8 @@ void queen(int i, int j, int r, int c, int colour){
             }
         }
         else if(i>r && j<c){
-            while(k<r && p>c){
+            k = i-1; p = j+1;
+            while(k>r && p<c){
                 if(board[k][p][0] == '.' || board[k][p][0] == '-'){
                     emptyPath = 1;
                 }
@@ -175,55 +177,61 @@ void queen(int i, int j, int r, int c, int colour){
             }
         }
     }
-    else if(r==i){
-        if(j>c){
-            while(p>c){
-                if(board[r][p][0] == '.' || board[r][p][0] == '-' ){
-                    emptyPath=1;
+    if((r == i && (c > j || c < j)) || (c == j && (r > i || r < i))){
+        if(r==i){
+            if(j>c){
+                p = j-1;
+                while(p>c){
+                    if(board[r][p][0] == '.' || board[r][p][0] == '-'){
+                        emptyPath=1;
+                    }
+                    else{
+                        emptyPath=0;
+                        break;
+                    }
+                    p--;
                 }
-                else{
-                    emptyPath=0;
-                    break;
+            }
+            else if(j<c){
+                p = j+1;
+                while(p<c){
+                    if(board[r][p][0] == '.' || board[r][p][0] == '-'){
+                        emptyPath=1;
+                    }
+                    else{
+                        emptyPath=0;
+                        break;
+                    }
+                    p++;
                 }
-                p--;
             }
         }
-        else if(j<c){
-            while(p<c){
-                if(board[r][p][0] == '.' || board[r][p][0] == '-' ){
-                    emptyPath=1;
+        else if(c==j){
+            if(i>r){
+                k = i-1;
+                while(k>r){
+                    if(board[k][c][0] == '.' || board[k][c][0] == '-'){
+                        emptyPath=1;
+                    }
+                    else{
+                        emptyPath=0;
+                        break;
+                    }
+                    k--;
                 }
-                else{
-                    emptyPath=0;
-                    break;
-                }
-                p++;
             }
-        }
-    }
-    else if(c==j){
-        if(i>r){
-            while(k>r){
-                if(board[k][c][0] == '.' || board[k][c][0] == '-' ){
-                    emptyPath=1;
+            else if(i<r){
+                k = i+1;
+                while(k<r){
+                    if(board[k][c][0] == '.' || board[k][c][0] == '-'){
+                        emptyPath=1;
+                    }
+                    else{
+                        emptyPath=0;
+                        break;
+                    }
+                    k++;
                 }
-                else{
-                    emptyPath=0;
-                    break;
-                }
-                k--;
-            }
-        }
-        else if(j<c){
-            while(k<r){
-                if(board[k][c][0] == '.' || board[k][c][0] == '-' ){
-                    emptyPath=1;
-                }
-                else{
-                    emptyPath=0;
-                    break;
-                }
-                k++;
             }
         }
     }
@@ -285,170 +293,233 @@ void queen(int i, int j, int r, int c, int colour){
     }
 }
 
-void pawn(int i, int j, int r, int c){
-    int invalid_move=0;
+void white_pawn(int i, int j, int r, int c){
+    invalid_move = 0;
     int firstMove=0;
     int possible_en_passant=0;
     if(isWhite(board[i][j])){
         if(i==6){
             firstMove = 1;
-        }
-        if(firstMove == 1 && i-r == 2 && j==c){
-            if(board[r][c][0] == '-' || board[r][c][0] == '.'){
-                char temp[4];
-                memcpy(temp, board[r][c], 4);
-                memcpy(board[r][c], board[i][j], 4);
-                memcpy(board[i][j], temp, 4);
-                moved[r][c] = 1;
-                moved[i][j] = 0;
+            if(firstMove == 1 && i-r == 2 && j==c){
+                if(board[r][c][0] == '-' || board[r][c][0] == '.'){
+                    char temp[4];
+                    memcpy(temp, board[r][c], 4);
+                    memcpy(board[r][c], board[i][j], 4);
+                    memcpy(board[i][j], temp, 4);
+                    moved[r][c] = 1;
+                    moved[i][j] = 0;
+                }
+                else{
+                    invalid_move = 1;
+                    if(!checking_checkmate && !checking_stalemate) printf("Invalid move\n");
+                }
             }
-            else if(isBlack(board[r][c]) || isWhite(board[r][c])){
-                invalid_move=1;
+            else if(firstMove == 1 && i-r == 1 && j==c){
+                if(board[r][c][0] == '-'){
+                    memcpy(board[r][c], board[i][j], 4);
+                    memcpy(board[i][j], ".", 2);
+                    moved[r][c] = 1;
+                    moved[i][j] = 0;
+                }
+                else if(board[r][c][0] == '.'){
+                    memcpy(board[r][c], board[i][j], 4);
+                    memcpy(board[i][j], "-", 2);
+                    moved[r][c] = 1;
+                    moved[i][j] = 0;
+                }
+                else{
+                    invalid_move = 1;
+                    if(!checking_checkmate && !checking_stalemate) printf("Invalid move\n");
+                }           
+            }
+            else{
+                invalid_move = 1;
                 if(!checking_checkmate && !checking_stalemate) printf("Invalid move\n");
             }
         }
-        else if(i-r==1 && j==c){
-            if(board[r][c][0] == '-'){
-                memcpy(board[r][c], board[i][j], 4);
-                memcpy(board[i][j], ".", 2);
-                moved[r][c] = 1;
-                moved[i][j] = 0;
+        else if(i != 6){
+            if(i-r==1 && j==c){
+                if(board[r][c][0] == '-'){
+                    memcpy(board[r][c], board[i][j], 4);
+                    memcpy(board[i][j], ".", 2);
+                    moved[r][c] = 1;
+                    moved[i][j] = 0;
+                }
+                else if(board[r][c][0] == '.'){
+                    memcpy(board[r][c], board[i][j], 4);
+                    memcpy(board[i][j], "-", 2);
+                    moved[r][c] = 1;
+                    moved[i][j] = 0;
+                }
+                else{
+                    invalid_move = 1;
+                    if(!checking_checkmate && !checking_stalemate) printf("Invalid move\n");
+                }
             }
-            else if(board[r][c][0] == '.'){
-                memcpy(board[r][c], board[i][j], 4);
-                memcpy(board[i][j], "-", 2);
-                moved[r][c] = 1;
-                moved[i][j] = 0;
-            }
-            else if(isBlack(board[r][c]) || isWhite(board[r][c])){
-                invalid_move=1;
-                if(!checking_checkmate && !checking_stalemate) printf("Invalid move\n");
-            }
-        }
-        else if(i-r == 1 && c-j == 1 && isBlack(board[r][c]) || i-r == 1 && j-c == 1 && isBlack(board[r][c])){
-            memcpy(killed_arrB[counterB], board[r][c], 4);
-            counterB++;
-            memcpy(board[r][c], board[i][j], 4);
-            moved[r][c] = 1;
-            moved[i][j] = 0;
-            change( i, j);
-        }
-        if(abs(c-j)==1 && i-r==1 && i==3 && isBlack(board[r][c])!=1 && isWhite(board[r][c])!=1){
-            possible_en_passant=1;
-        }
-        if(possible_en_passant){
-            if((u8) board[r+1][c][2] == BlackPawn){ //&&history move of this black pawn*********
-                memcpy(killed_arrB[counterB],"\u265F",4);
+            else if(i-r == 1 && c-j == 1 && isBlack(board[r][c]) || i-r == 1 && j-c == 1 && isBlack(board[r][c])){
+                memcpy(killed_arrB[counterB], board[r][c], 4);
                 counterB++;
-                memcpy(board[r][c],"\u2659",4);
+                memcpy(board[r][c], board[i][j], 4);
                 moved[r][c] = 1;
                 moved[i][j] = 0;
-                if(i % 2 == 0 && j % 2 == 0){
-                    memcpy(board[i][j], "-", 2);
-                    memcpy(board[r+1][c],".",2);
-                }
-                if(i % 2 == 1 && j % 2 == 1){
-                    memcpy(board[i][j], "-", 2);
-                    memcpy(board[r+1][c],".",2);
-                }
-                if(i % 2 == 1 && j % 2 == 0){
-                    memcpy(board[i][j], ".", 2);
-                    memcpy(board[r+1][c],"-",2);
-                }
-                if(i % 2 == 0 && j % 2 == 1){
-                    memcpy(board[i][j], ".", 2);
-                    memcpy(board[r+1][c],"-",2);
+                change( i, j);
+            }
+            else if(abs(c-j)==1 && i-r==1 && i==3 && isBlack(board[r][c])!=1 && isWhite(board[r][c])!=1){
+                possible_en_passant=1;
+                if(possible_en_passant){
+                    if((u8) board[r+1][c][2] == BlackPawn){ //&&history move of this black pawn*********
+                        memcpy(killed_arrB[counterB],board[r+1][c],4);
+                        counterB++;
+                        memcpy(board[r][c],board[i][j],4);
+                        moved[r][c] = 1;
+                        moved[i][j] = 0;
+                        if(i % 2 == 0 && j % 2 == 0){
+                            memcpy(board[i][j], "-", 2);
+                            memcpy(board[r+1][c],".",2);
+                        }
+                        if(i % 2 == 1 && j % 2 == 1){
+                            memcpy(board[i][j], "-", 2);
+                            memcpy(board[r+1][c],".",2);
+                        }
+                        if(i % 2 == 1 && j % 2 == 0){
+                            memcpy(board[i][j], ".", 2);
+                            memcpy(board[r+1][c],"-",2);
+                        }
+                        if(i % 2 == 0 && j % 2 == 1){
+                            memcpy(board[i][j], ".", 2);
+                            memcpy(board[r+1][c],"-",2);
+                        }
+                    }
+                    else{
+                        invalid_move = 1;
+                        if(!checking_checkmate && !checking_stalemate) printf("Invalid move\n");
+                    }
                 }
             }
-        }
-        else{
-            invalid_move=1;
-            if(!checking_checkmate && !checking_stalemate) printf("Invalid move\n");
+            else{
+                invalid_move = 1;
+                if(!checking_checkmate && !checking_stalemate) printf("Invalid move\n");
+            }
         }
     }
-    else if(isBlack(board[i][j])){
+}
+
+void black_pawn( int i, int j, int r, int c){
+    invalid_move = 0;
+    int firstMove=0;
+    int possible_en_passant=0;
+    if(isBlack(board[i][j])){
         if(i==1){
             firstMove = 1;
-        }
-        if(firstMove == 1 && r-i == 2 && j==c){
-            if(board[r][c][0] == '-' || board[r][c][0] == '.'){
-                char temp[4];
-                memcpy(temp, board[r][c], 4);
-                memcpy(board[r][c], board[i][j], 4);
-                memcpy(board[i][j], temp, 4);
-                moved[r][c] = 1;
-                moved[i][j] = 0;
+            if(firstMove == 1 && r-i == 2 && j==c){
+                if(board[r][c][0] == '-' || board[r][c][0] == '.'){
+                    char temp[4];
+                    memcpy(temp, board[r][c], 4);
+                    memcpy(board[r][c], board[i][j], 4);
+                    memcpy(board[i][j], temp, 4);
+                    moved[r][c] = 1;
+                    moved[i][j] = 0;
+                }
+                else{
+                    invalid_move=1;
+                    if(!checking_checkmate && !checking_stalemate) printf("Invalid move\n");
+                }
             }
-            else if(isWhite(board[r][c]) || isBlack(board[r][c])){
-                invalid_move=1;
+            else if(firstMove == 1 && r-i == 1 && j==c){
+                if(board[r][c][0] == '-'){
+                    memcpy(board[r][c], board[i][j], 4);
+                    memcpy(board[i][j], ".", 2);
+                    moved[r][c] = 1;
+                    moved[i][j] = 0;
+                }
+                else if(board[r][c][0] == '.'){
+                    memcpy(board[r][c], board[i][j], 4);
+                    memcpy(board[i][j], "-", 2);
+                    moved[r][c] = 1;
+                    moved[i][j] = 0;
+                }
+                else if(isWhite(board[r][c]) || isBlack(board[r][c])){
+                    invalid_move=1;
+                    if(!checking_checkmate && !checking_stalemate) printf("Invalid move\n");
+                }
+            }
+            else{
+                invalid_move = 1;
                 if(!checking_checkmate && !checking_stalemate) printf("Invalid move\n");
             }
         }
-        else if(r-i==1 && j==c){
-            if(board[r][c][0] == '-'){
-                memcpy(board[r][c], board[i][j], 4);
-                memcpy(board[i][j], ".", 2);
-                moved[r][c] = 1;
-                moved[i][j] = 0;
+        else if(i != 1){
+            if(r-i==1 && j==c){
+                if(board[r][c][0] == '-'){
+                    memcpy(board[r][c], board[i][j], 4);
+                    memcpy(board[i][j], ".", 2);
+                    moved[r][c] = 1;
+                    moved[i][j] = 0;
+                }
+                else if(board[r][c][0] == '.'){
+                    memcpy(board[r][c], board[i][j], 4);
+                    memcpy(board[i][j], "-", 2);
+                    moved[r][c] = 1;
+                    moved[i][j] = 0;
+                }
+                else{
+                    invalid_move=1;
+                    if(!checking_checkmate && !checking_stalemate) printf("Invalid move\n");
+                }
             }
-            else if(board[r][c][0] == '.'){
-                memcpy(board[r][c], board[i][j], 4);
-                memcpy(board[i][j], "-", 2);
-                moved[r][c] = 1;
-                moved[i][j] = 0;
-            }
-            else if(isWhite(board[r][c]) || isBlack(board[r][c])){
-                invalid_move=1;
-                if(!checking_checkmate && !checking_stalemate) printf("Invalid move\n");
-            }
-        }
-        else if(r-i == 1 && c-j == 1 && isWhite(board[r][c]) || r-i == 1 && j-c == 1 && isWhite(board[r][c])){
-            memcpy(killed_arrW[counterW], board[r][c], 4);
-            counterW++;
-            memcpy(board[r][c], board[i][j], 4);
-            moved[r][c] = 1;
-            moved[i][j] = 0;
-            change( i, j);
-        }
-        else if(abs(c-j)==1 && r-i==1 && i==4 && isWhite(board[r][c])!=1 && isBlack(board[r][c])!=1){
-            possible_en_passant=1;
-        }
-        if(possible_en_passant){
-            if(board[r-1][c][2] == WhitePawn ){ //&&history move of this white pawn*********
-                memcpy(killed_arrW[counterW],"\u2659",4);
+            else if(r-i == 1 && c-j == 1 && isWhite(board[r][c]) || r-i == 1 && j-c == 1 && isWhite(board[r][c])){
+                memcpy(killed_arrW[counterW], board[r][c], 4);
                 counterW++;
-                memcpy(board[r][c],"\u265F",4);
+                memcpy(board[r][c], board[i][j], 4);
                 moved[r][c] = 1;
                 moved[i][j] = 0;
-                if(i % 2 == 0 && j % 2 == 0){
-                    memcpy(board[i][j], "-", 2);
-                    memcpy(board[r-1][c],".",2);
-                }
-                if(i % 2 == 1 && j % 2 == 1){
-                    memcpy(board[i][j], "-", 2);
-                    memcpy(board[r-1][c],".",2);
-                }
-                if(i % 2 == 1 && j % 2 == 0){
-                    memcpy(board[i][j], ".", 2);
-                    memcpy(board[r-1][c],"-",2);
-                }
-                if(i % 2 == 0 && j % 2 == 1){
-                    memcpy(board[i][j], ".", 2);
-                    memcpy(board[r-1][c],"-",2);
+                change( i, j);
+            }
+            else if(abs(c-j)==1 && r-i==1 && i==4 && isWhite(board[r][c])!=1 && isBlack(board[r][c])!=1){
+                possible_en_passant=1;
+                if(possible_en_passant){
+                    if(board[r-1][c][2] == WhitePawn ){ //&&history move of this white pawn*********
+                        memcpy(killed_arrW[counterW],board[r-1][c],4);
+                        counterW++;
+                        memcpy(board[r][c],board[i][j],4);
+                        moved[r][c] = 1;
+                        moved[i][j] = 0;
+                        if(i % 2 == 0 && j % 2 == 0){
+                            memcpy(board[i][j], "-", 2);
+                            memcpy(board[r-1][c],".",2);
+                        }
+                        if(i % 2 == 1 && j % 2 == 1){
+                            memcpy(board[i][j], "-", 2);
+                            memcpy(board[r-1][c],".",2);
+                        }
+                        if(i % 2 == 1 && j % 2 == 0){
+                            memcpy(board[i][j], ".", 2);
+                            memcpy(board[r-1][c],"-",2);
+                        }
+                        if(i % 2 == 0 && j % 2 == 1){
+                            memcpy(board[i][j], ".", 2);
+                            memcpy(board[r-1][c],"-",2);
+                        }
+                    }
+                    else{
+                        invalid_move=1;
+                        if(!checking_checkmate && !checking_stalemate) printf("Invalid move\n");
+                    }
                 }
             }
-        }
-        else{
-            invalid_move=1;
-            if(!checking_checkmate && !checking_stalemate) printf("Invalid move\n");
+            else{
+                invalid_move=1;
+                if(!checking_checkmate && !checking_stalemate) printf("Invalid move\n");
+            }
         }
     }
 }
 
 void bishop(int i, int j, int r, int c, int colour){
-    int k = i; int p = j; int emptyPath=0;int invalid_move=0;
+    int k ; int p ;  int emptyPath=1;  invalid_move = 0;
     if(abs(r - i) == abs(c - j)){
         if(i>r && j>c){
+            k = i-1; p = j-1;
             while(k>r && p>c){
                 if(board[k][p][0] == '.' || board[k][p][0] == '-'){
                     emptyPath = 1;
@@ -462,6 +533,7 @@ void bishop(int i, int j, int r, int c, int colour){
             }
         }
         else if(i<r && j<c){
+            k = i+1; p = j+1;
             while(k<r && p<c){
                 if(board[k][p][0] == '.' || board[k][p][0] == '-'){
                     emptyPath = 1;
@@ -475,6 +547,7 @@ void bishop(int i, int j, int r, int c, int colour){
             }
         }
         else if(i<r && j>c){
+            k = i+1; p = j-1;
             while(k<r && p>c){
                 if(board[k][p][0] == '.' || board[k][p][0] == '-'){
                     emptyPath = 1;
@@ -488,7 +561,8 @@ void bishop(int i, int j, int r, int c, int colour){
             }
         }
         else if(i>r && j<c){
-            while(k<r && p>c){
+            k = i-1; p = j+1;
+            while(k>r && p<c){
                 if(board[k][p][0] == '.' || board[k][p][0] == '-'){
                     emptyPath = 1;
                 }
@@ -500,135 +574,134 @@ void bishop(int i, int j, int r, int c, int colour){
                 p++;
             }
         }
-        if(emptyPath == 1){
-            if(board[r][c][0] == '-' || board[r][c][0] == '.'){
-                memcpy(board[r][c], board[i][j], 4);
-                moved[r][c] = 1;
-                moved[i][j] = 0;
-                change( i, j);
-            }  else  if(piece_colour(board[r][c]) != colour){
-                    if(isWhite(board[r][c])){
-                        memcpy(killed_arrW[counterW], board[r][c], 4);
-                        counterW++;
-                    }
-                    else{
-                        memcpy(killed_arrB[counterB], board[r][c], 4);
-                        counterB++;
-                    }
-                    memcpy(board[r][c], board[i][j], 4);
-                    moved[r][c] = 1;
-                    moved[i][j] = 0;
-                    change( i, j);
-
-        }  else if(piece_colour(board[r][c]) == colour){ 
+    }
+    if(emptyPath == 1){
+        if(board[r][c][0] == '-' || board[r][c][0] == '.'){
+            memcpy(board[r][c], board[i][j], 4);
+            moved[r][c] = 1;
+            moved[i][j] = 0;
+            change( i, j);
+        }  
+        else  if(piece_colour(board[r][c]) != colour){
+            if(isWhite(board[r][c])){
+                memcpy(killed_arrW[counterW], board[r][c], 4);
+                counterW++;
+            }
+            else{
+                memcpy(killed_arrB[counterB], board[r][c], 4);
+                counterB++;
+            }
+            memcpy(board[r][c], board[i][j], 4);
+            moved[r][c] = 1;
+            moved[i][j] = 0;                
+            change( i, j);
+        }  
+        else if(piece_colour(board[r][c]) == colour){ 
             invalid_move=1;   
             if(!checking_checkmate && !checking_stalemate) printf("Cannot eat a friendly piece\n");
         }
-      }
-      else{
-        invalid_move=1;
-        if(!checking_checkmate && !checking_stalemate) printf("Invalid move\n");
-      }
-    }else{ 
+    }
+    else{
         invalid_move=1;
         if(!checking_checkmate && !checking_stalemate) printf("Invalid move\n");
     }
 }
 
+
 void rook(int i, int j, int r, int c, int colour){
-    int k = i; int p = j; int emptyPath=0;int invalid_move=0;
+    int k ; int p ; int emptyPath=1;invalid_move = 0;
     if((r == i && (c > j || c < j)) || (c == j && (r > i || r < i))){
         if(r==i){
-          if(j>c){
-            while(p>c){
-                if(board[r][p][0] == '.' || board[r][p][0] == '-'){
-                    emptyPath=1;
+            if(j>c){
+                p = j-1;
+                while(p>c){
+                    if(board[r][p][0] == '.' || board[r][p][0] == '-'){
+                        emptyPath=1;
+                    }
+                    else{
+                        emptyPath=0;
+                        break;
+                    }
+                    p--;
                 }
-                else{
-                    emptyPath=0;
-                    break;
+            }
+            else if(j<c){
+                p = j+1;
+                while(p<c){
+                    if(board[r][p][0] == '.' || board[r][p][0] == '-'){
+                        emptyPath=1;
+                    }
+                    else{
+                        emptyPath=0;
+                        break;
+                    }
+                    p++;
                 }
-                p--;
             }
         }
-        else if(j<c){
-            while(p<c){
-                if(board[r][p][0] == '.' || board[r][p][0] == '-'){
-                    emptyPath=1;
+        else if(c==j){
+            if(i>r){
+                k = i-1;
+                while(k>r){
+                    if(board[k][c][0] == '.' || board[k][c][0] == '-'){
+                        emptyPath=1;
+                    }
+                    else{
+                        emptyPath=0;
+                        break;
+                    }
+                    k--;
                 }
-                else{
-                    emptyPath=0;
-                    break;
+            }
+            else if(i<r){
+                k = i+1;
+                while(k<r){
+                    if(board[k][c][0] == '.' || board[k][c][0] == '-'){
+                        emptyPath=1;
+                    }
+                    else{
+                        emptyPath=0;
+                        break;
+                    }
+                    k++;
                 }
-                p++;
             }
         }
     }
-    else if(c==j){
-        if(i>r){
-            while(k>r){
-                if(board[k][c][0] == '.' || board[k][c][0] == '-'){
-                    emptyPath=1;
-                }
-                else{
-                    emptyPath=0;
-                    break;
-                }
-                k--;
+    if(emptyPath == 1){
+        if(board[r][c][0] == '-' || board[r][c][0] == '.'){
+            memcpy(board[r][c], board[i][j], 4);
+            moved[r][c] = 1;
+            moved[i][j] = 0;
+            change( i, j);
+        }  
+        else  if(piece_colour(board[r][c]) != colour){
+            if(isWhite(board[r][c])){
+                memcpy(killed_arrW[counterW], board[r][c], 4);
+                counterW++;
             }
-        }
-        else if(j<c){
-            while(k<r){
-                if(board[k][c][0] == '.' || board[k][c][0] == '-'){
-                    emptyPath=1;
-                }
-                else{
-                    emptyPath=0;
-                    break;
-                }
-                k++;
+            else{
+                memcpy(killed_arrB[counterB], board[r][c], 4);
+                counterB++;
             }
+            moved[r][c] = 1;
+            moved[i][j] = 0;
+            memcpy(board[r][c], board[i][j], 4);
+            change( i, j);
         }
-      }
-     if(emptyPath == 1){
-            if(board[r][c][0] == '-' || board[r][c][0] == '.'){
-                memcpy(board[r][c], board[i][j], 4);
-                moved[r][c] = 1;
-                moved[i][j] = 0;
-                change( i, j);
-            }  
-            else  if(piece_colour(board[r][c]) != colour){
-                    if(isWhite(board[r][c])){
-                        memcpy(killed_arrW[counterW], board[r][c], 4);
-                        counterW++;
-                    }
-                    else{
-                        memcpy(killed_arrB[counterB], board[r][c], 4);
-                        counterB++;
-                    }
-                    moved[r][c] = 1;
-                    moved[i][j] = 0;
-                    memcpy(board[r][c], board[i][j], 4);
-                    change( i, j);
-
-        }
-          else if(piece_colour(board[r][c]) == colour){
+        else if(piece_colour(board[r][c]) == colour){
             invalid_move=1;   
             if(!checking_checkmate && !checking_stalemate) printf("Cannot eat a friendly piece\n");
         }
     }
-      else{
-        invalid_move=1;
-        if(!checking_checkmate && !checking_stalemate) printf("Invalid move\n");
-      }
-    }else{
+    else{
         invalid_move=1;
         if(!checking_checkmate && !checking_stalemate) printf("Invalid move\n");
     }
 }
 
 void king(int i, int j, int r, int c, int colour){
-    int invalid_move=0;
+    invalid_move = 0;
     if(board[r][c][0] == '-' || board[r][c][0] == '.'){
         if((r == i && c == j + 1) || (r == i && c == j - 1) || (r == i + 1 && c == j) || (r == i - 1 && c == j) || (r == i + 1 && c == j + 1) || (r == i + 1 && c == j - 1) || (r == i - 1 && c == j - 1) || (r == i - 1 && c == j + 1)){
             moved[r][c] = 1;

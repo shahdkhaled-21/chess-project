@@ -43,13 +43,15 @@ char white[6][4] = {"\u2654", "\u2655", "\u2656", "\u2657", "\u2658", "\u2659"};
 char promotion_pieceW[4][4] = {"\u2656", "\u2657", "\u2658", "\u2655"};
 char promotion_pieceB[4][4] = {"\u265C", "\u265D", "\u265E", "\u265B"};
 
+char promotion_piece_letters[4] = {'Q','K','B','R'};
+
 int moved[8][8] = {0};
 char killed_arrW[15][4];
 char killed_arrB[15][4];
 
 int counterW = 0;
 int counterB = 0;
-int invalid_move = 1;
+int invalid_move;
 int colour;
 int checking_checkmate = 0;
 int checking_stalemate = 0;
@@ -82,10 +84,17 @@ typedef struct{
 }History;
 
 History history[5000]={};
-void initialize_history(History history){
-   
+
+void initialize_history(History*history){
+    history->original_place[3] ;
+    history-> new_place[3] ;
+    history->moved_piece[4] ;
+    history->captured_piece[4];
 }
-void Add_to_history(History history){}
+
+void Add_to_history(History*history){
+    
+}
 
 void undo(){}
 void redo(){}
@@ -95,13 +104,13 @@ void White_Player(char board[8][8][4]){
     int valid_place=0;
     int valid_piece=0;
     int valid_new=0;
-    int invalid_move=1;
-    char promotion_piece[4];
+    char promotion_letter;
     char original_place[3];
     char new_place[3];
     int i, j, r, c;
     while(valid_place==0 || valid_piece==0 || valid_new==0 || invalid_move == 1){
-        scanf("%s",original_place);
+        valid_place = 0;  valid_piece = 0;  valid_new = 0;  invalid_move = 0;
+        scanf("%s %s",original_place,new_place);
         if(original_place[0] >= 'A' && original_place[0] <= 'H' && original_place[1] >= '1' && original_place[1] <= '8'){
             valid_place=1;
             i = 8 - (original_place[1] - '0');
@@ -122,7 +131,6 @@ void White_Player(char board[8][8][4]){
                 continue;
             }
         }
-        scanf("%s",new_place);
         if(new_place[0] >= 'A' && new_place[0] <= 'H' && new_place[1] >= '1' && new_place[1] <= '8'){
             valid_new=1;
             r = 8 - (new_place[1] - '0');
@@ -133,85 +141,74 @@ void White_Player(char board[8][8][4]){
             printf("Enter a valid NEW place\n");
             continue;
         }
-        if((u8)board[i][j][2] == WhiteKing){
-            invalid_move = 0;
+        if((u8) board[i][j][2] == WhiteKing){
             //castling
             king( i, j, r, c, colour);
+            if(invalid_move==1){
+                continue;
+            }
         }
-        else if((u8)board[i][j][2] == WhiteQueen){
-            invalid_move = 0;
+        else if((u8) board[i][j][2] == WhiteQueen){
             queen( i, j, r, c, colour);
             if(invalid_move==1){
                 continue;
             }
-            break;
         }
-        else if((u8)board[i][j][2] == WhiteRook){
-            invalid_move = 0;
+        else if((u8) board[i][j][2] == WhiteRook){
             rook( i, j, r, c, colour);
             if(invalid_move==1){
                 continue;
             }
-            break;
         }
-        else if((u8)board[i][j][2] == WhiteBishop){
-            invalid_move = 0;
+        else if((u8) board[i][j][2] == WhiteBishop){
             bishop( i, j, r, c, colour);
             if(invalid_move==1){
                 continue;
             }
-            break;
         }
-        else if((u8)board[i][j][2] == WhiteKnight){
-            invalid_move = 0;
+        else if((u8) board[i][j][2] == WhiteKnight){
             knight( i, j, r, c, colour);
             if(invalid_move==1){
                 continue;
             }
-            break;
         }
-        else if((u8)board[i][j][2] == WhitePawn){
+        else if((u8) board[i][j][2] == WhitePawn){
             if(must_promote( i, j, r, c)==0){
-                invalid_move = 0;
-                pawn( i, j, r, c);
+                white_pawn( i, j, r, c);
                 if(invalid_move==1){
+
                     continue;
                 }
-                break;
             }
             else if(must_promote( i, j, r, c)==1){
-                scanf("%s",promotion_piece);
-                if((u8) promotion_piece[2] == (u8) promotion_pieceB[0][2]){
-                    invalid_move = 0;
-                    promotion( i, j, r, c, promotion_pieceB[0]);
+                scanf(" %c",&promotion_letter);
+                if(promotion_letter == 'R'){
+                    promotion( i, j, r, c, promotion_pieceW[0]);
                     if(invalid_move==1){
+    
                         continue;
                     }
-                    break;
                 }
-                if((u8) promotion_piece[2] == (u8) promotion_pieceB[1][2]){
-                    invalid_move = 0;
-                    promotion( i, j, r, c, promotion_pieceB[1]);
+                if(promotion_letter == 'B'){
+                    promotion( i, j, r, c, promotion_pieceW[1]);
                     if(invalid_move==1){
+    
                         continue;
                     }
-                    break;
                 }
-                if((u8) promotion_piece[2] == (u8) promotion_pieceB[2][2]){
-                    invalid_move = 0;
-                    promotion( i, j, r, c, promotion_pieceB[2]);
+                if(promotion_letter == 'K'){
+                    promotion( i, j, r, c, promotion_pieceW[2]);
                     if(invalid_move==1){
+    
                         continue;
                     }
-                    break;
                 }
-                if((u8) promotion_piece[2] == (u8) promotion_pieceB[3][2]){
-                    invalid_move = 0;
-                    promotion( i, j, r, c, promotion_pieceB[3]);
+                if(promotion_letter == 'Q'){
+                    promotion( i, j, r, c, promotion_pieceW[3]);
                     if(invalid_move==1){
+    
                         continue;
                     }
-                    break;
                 }
             }
         }
@@ -223,13 +220,13 @@ void Black_Player(char board[8][8][4]){
     int valid_place=0;
     int valid_piece=0;
     int valid_new=0;
-    int invalid_move=1;
-    char promotion_piece[4];
+    char promotion_letter;
     char original_place[3];
     char new_place[3];
     int i, j, r, c;
     while(valid_place == 0 || valid_piece == 0 || valid_new == 0 || invalid_move == 1){
-        scanf("%s",original_place);
+        valid_place = 0;  valid_piece = 0;  valid_new = 0;
+        scanf("%s %s",original_place,new_place);
         if(original_place[0] >= 'A' && original_place[0] <= 'H' && original_place[1] >= '1' && original_place[1] <= '8'){
             valid_place=1;
             i = 8 - (original_place[1] - '0');
@@ -250,7 +247,6 @@ void Black_Player(char board[8][8][4]){
                 continue;
             }
         }
-        scanf("%s",new_place);
         if(new_place[0] >= 'A' && new_place[0] <= 'H' && new_place[1] >= '1' && new_place[1] <= '8'){
             valid_new=1;
             r = 8 - (new_place[1] - '0');
@@ -262,80 +258,70 @@ void Black_Player(char board[8][8][4]){
             continue;
         }
         if((u8) board[i][j][2] == BlackKing){
-            invalid_move = 0;
             //castling and check
             king( i, j, r, c, colour);
         }
         else if((u8) board[i][j][2] == BlackQueen){
-            invalid_move = 0;
             queen( i, j, r, c, colour);
             if(invalid_move==1){
                 continue;
             }
-            break;
         }
         else if((u8) board[i][j][2] == BlackRook){
-            invalid_move = 0;
             rook( i, j, r, c, colour);
             if(invalid_move==1){
                 continue;
             }
-            break;
         }
         else if((u8) board[i][j][2] == BlackBishop){
-            invalid_move = 0;
             bishop( i, j, r, c, colour);
             if(invalid_move==1){
                 continue;
             }
-            break;
         }
         else if((u8) board[i][j][2] == BlackKnight){
-            invalid_move = 0;
             knight( i, j, r, c, colour);
             if(invalid_move==1){
                 continue;
             }
-            break;
         }
         else if((u8) board[i][j][2] == BlackPawn){
-            invalid_move = 0;
             if(must_promote( i, j, r, c)==0){
-                pawn( i, j, r, c);
+                black_pawn( i, j, r, c);
                 if(invalid_move==1){
+
                     continue;
                 }
-                break;
             }
             else if(must_promote( i, j, r, c)==1){
-                scanf("%s",promotion_piece);
-                if((u8) promotion_piece[2] == (u8) promotion_pieceB[0][2]){
+                scanf(" %c",&promotion_letter);
+                if(promotion_letter == 'R'){
                     promotion( i, j, r, c, promotion_pieceB[0]);
                     if(invalid_move==1){
+    
                         continue;
                     }
-                    break;
                 }
-                if((u8) promotion_piece[2] == (u8) promotion_pieceB[1][2]){
+                if(promotion_letter == 'B'){
                     promotion( i, j, r, c, promotion_pieceB[1]);
                     if(invalid_move==1){
+    
                         continue;
                     }
-                    break;
                 }
-                if((u8) promotion_piece[2] == (u8) promotion_pieceB[2][2]){
+                if(promotion_letter == 'K'){
                     promotion( i, j, r, c, promotion_pieceB[2]);
                     if(invalid_move==1){
+    
                         continue;
                     }
-                    break;
                 }
-                if((u8) promotion_piece[2] == (u8) promotion_pieceB[3][2]){
+                if(promotion_letter == 'Q'){
                     promotion( i, j, r, c, promotion_pieceB[3]);
                     if(invalid_move==1){
+    
                         continue;
                     }
-                    break;
                 }
             }
         }
@@ -344,20 +330,20 @@ void Black_Player(char board[8][8][4]){
 
 char display(char board[8][8][4],char width_arr[8][2]){
     for(int k=0 ; k<8 ; k++){
-        printf("      %s ",width_arr[k]);
+        printf("       %s",width_arr[k]);
     }
     printf("\n\n");
     for(int i = 0; i < 8; i++){
         printf("%d  ",8-i);
-        printf("%s", killed_arrW[i]);
         for(int j = 0; j <8; j++){
             printf("    %s   ",board[i][j]);
         }
-        printf("  %d ",8-i);
-        printf("%s", killed_arrB[i]);
+        printf("    %d ",8-i);
+        printf("%s\t%s", killed_arrB[i],killed_arrW[i]);
+        if(killed_arrW[i][2] == WhitePawn){}
         printf("\n\n");
     }
     for(int k=0 ; k<8 ; k++){
-        printf("      %s ",width_arr[k]);
+        printf("       %s",width_arr[k]);
     }
 }

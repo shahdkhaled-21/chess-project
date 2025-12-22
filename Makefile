@@ -12,9 +12,13 @@ board: board.o moves.o specialMoves.o
 board.o : board.c moves.h specialMoves.h 
 	gcc -c board.c
 
+specialMoves:specialMoves.o moves.o
+			gcc specialMoves.o moves.o -o specialMoves
+
+specialMoves.o : specialMoves.c moves.h
+		gcc -c specialMoves.c
+		
 moves.o: moves.c 
 		gcc -c moves.c 
 
-specialMoves.o : specialMoves.c
-		gcc -c specialMoves.c
  
