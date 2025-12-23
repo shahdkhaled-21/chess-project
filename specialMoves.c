@@ -345,129 +345,79 @@ int isStalemate(int colour){
     return 1;
 }
 
+int isDeadPosition(){}
+
 int must_promote(int i, int j, int r, int c){
-    if((u8) board[i][j][2] == BlackPawn && i==6 && r-i==1 && c==j && isWhite(board[r][c])!=1 && isBlack(board[r][c])!=1){
+    if((u8) board[i][j][2] == BlackPawn && i==6 && r-i==1 && c==j &&  (board[r][c][0] == '-' || board[r][c][0] == '.')){
         return 1;
     }
-    else if((u8) board[i][j][2] == BlackPawn && r-i == 1 && abs(c-j)==1 && isWhite(board[r][c])==1){
+    if((u8) board[i][j][2] == BlackPawn && i==6 && r-i == 1 && abs(c-j)==1 && isWhite(board[r][c])==1){
         return 1;
     }
-    else if((u8) board[i][j][2] == WhitePawn && i==1 && i-r==1 && c==j && isBlack(board[r][c])!=1 && isWhite(board[r][c])!=1){
+    if((u8) board[i][j][2] == WhitePawn && i==1 && i-r==1 && c==j && (board[r][c][0] == '-' || board[r][c][0] == '.')){
         return 1;
     }
-    else if((u8) board[i][j][2] == WhitePawn && i-r == 1 && abs(c-j)==1 && isBlack(board[r][c])!=1){
+    if((u8) board[i][j][2] == WhitePawn && i==1 && i-r == 1 && abs(c-j)==1 && isBlack(board[r][c])==1){
         return 1;
     }
-    else{
-        return 0;
-    }
+    return 0;
 }
 
 void promotion(int i, int j, int r, int c, char promotion_piece[4]){
     int possible_promotion=0;
     invalid_move=0;
-    int found=0;
-    if((u8) board[i][j][2] == BlackPawn && i==6 && r-i==1 && c==j && isWhite(board[r][c])!=1 && isBlack(board[r][c])!=1){
-        possible_promotion=1;
-        if(possible_promotion){
-            for(int s=0; s<counterB ; s++){
-                if((u8) promotion_piece[2] == (u8) killed_arrB[s][2] && (u8) promotion_piece[2] >= BlackQueen && (u8) promotion_piece[2] <= BlackKnight){
-                    found=1;
-                    break;
+    if((u8) board[i][j][2] == BlackPawn && i==6 && r-i==1 ){
+        if((c==j && (board[r][c][0] == '-' || board[r][c][0] == '.')) || (abs(c-j)==1 && isWhite(board[r][c])==1)){
+            possible_promotion=1;
+            if(possible_promotion){
+                if((u8) promotion_piece[2] >= BlackQueen && (u8) promotion_piece[2] <= BlackKnight){
+                    if(abs(c-j)==1 && isWhite(board[r][c])){
+                        memcpy(killed_arrW[counterW],board[r][c],4);
+                        counterW++;
+                    }
+                    memcpy(board[r][c],promotion_piece,4);
+                    memcpy(killed_arrB[counterB], board[i][j],4);
+                    counterB++;
+                    moved[r][c] = 1;
+                    moved[i][j] = 0;
+                    change( i, j);
+                }
+                else{
+                    invalid_move=1;
+                    printf("Cannot promote the Black pawn\n");
                 }
             }
-            if(found){
-                memcpy(board[r][c],promotion_piece,4);
-                counterB--;
-                memcpy(killed_arrB[counterB], board[i][j], 4);
-                counterB++;
-                moved[r][c] = 1;
-                moved[i][j] = 0;
+            else{
+                invalid_move=1;
+                printf("Cannot promote the Black pawn\n");
             }
-            change( i, j);
-        }
-        else{
-            invalid_move=1;
-            printf("Cannot promote the Black pawn");
-        }
-    }
-    else if((u8) board[i][j][2] == BlackPawn && r-i == 1 && abs(c-j)==1 && isWhite(board[r][c])==1){
-        possible_promotion=1;
-        if(possible_promotion){
-            for(int s=0; s<counterB ; s++){
-                int found=0;
-                if((u8) promotion_piece[2] == (u8) killed_arrB[s][2] && (u8) promotion_piece[2] >= BlackQueen && (u8) promotion_piece[2] <= BlackKnight){
-                    found=1;
-                    break;
-                }
-            }
-            if(found){
-                memcpy(killed_arrW[counterW], board[r][c], 4);
-                counterW++;
-                memcpy(board[r][c],promotion_piece,4);
-                counterB--;
-                memcpy(killed_arrB[counterB], board[i][j], 4);
-                counterB++;
-                moved[r][c] = 1;
-                moved[i][j] = 0;
-            }
-            change( i, j);
-        }
-        else{
-            invalid_move=1;
-            printf("Cannot promote the Black pawn");
         }
     }     
-    if((u8) board[i][j][2] == WhitePawn && i==1 && i-r==1 && c==j && isBlack(board[r][c])!=1 && isWhite(board[r][c])!=1){
-        possible_promotion=1;
-        if(possible_promotion){
-            for(int s=0; s<counterW ; s++){
-                int found=0;
-                if((u8) promotion_piece[2] == (u8) killed_arrW[s][2] && (u8) promotion_piece[2] >= WhiteQueen && (u8) promotion_piece[2] <= WhiteKnight){
-                    found=1;
-                    break;
+    else if((u8) board[i][j][2] == WhitePawn && i==1 && i-r==1 ){
+        if((c==j && (board[r][c][0] == '-' || board[r][c][0] == '.')) || (abs(c-j)==1 && isBlack(board[r][c])==1)){
+            possible_promotion=1;
+            if(possible_promotion){
+                if((u8) promotion_piece[2] >= WhiteQueen && (u8) promotion_piece[2] <= WhiteKnight){
+                    if(abs(c-j)==1 && isBlack(board[r][c])){
+                        memcpy(killed_arrB[counterB],board[r][c],4);
+                        counterB++;
+                    }
+                    memcpy(board[r][c],promotion_piece,4);
+                    memcpy(killed_arrW[counterW], board[i][j],4);
+                    counterW++;
+                    moved[r][c] = 1;
+                    moved[i][j] = 0;
+                    change( i, j);
+                }
+                else{
+                    invalid_move=1;
+                    printf("Cannot promote the White pawn\n");
                 }
             }
-            if(found){
-                memcpy(board[r][c],promotion_piece,4);
-                counterW--;
-                memcpy(killed_arrW[counterW], board[i][j],4);
-                counterW++;
-                moved[r][c] = 1;
-                moved[i][j] = 0;
+            else{
+                invalid_move=1;
+                printf("Cannot promote the White pawn\n");
             }
-            change( i, j);
-        }
-        else{
-            invalid_move=1;
-            printf("Cannot promote the White pawn");
-        }
-    }
-    else if( (u8) board[i][j][2] == WhitePawn && i-r == 1 && abs(c-j)==1 && isBlack(board[r][c])!=1){
-        possible_promotion=1;
-        if(possible_promotion){
-            for(int s=0; s<counterW ; s++){
-                int found=0;
-                if((u8) promotion_piece[2] == (u8) killed_arrW[s][2] && (u8) promotion_piece[2] >= WhiteQueen && (u8) promotion_piece[2] <= WhiteKnight){
-                    found=1;
-                    break;
-                }
-            }
-            if(found){
-                memcpy(killed_arrB[counterB],board[r][c],4);
-                counterB++;
-                memcpy(board[r][c],promotion_piece,4);
-                counterW--;
-                memcpy(killed_arrW[counterW],board[i][j],4);
-                counterW++;
-                moved[r][c] = 1;
-                moved[i][j] = 0;
-            }
-            change( i, j);
-        }
-        else{
-            invalid_move=1;
-            printf("Cannot promote the White pawn");
         }
     }       
 }

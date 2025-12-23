@@ -46,6 +46,7 @@ char promotion_pieceB[4][4] = {"\u265C", "\u265D", "\u265E", "\u265B"};
 char promotion_piece_letters[4] = {'Q','K','B','R'};
 
 int moved[8][8] = {0};
+
 char killed_arrW[15][4];
 char killed_arrB[15][4];
 
@@ -105,12 +106,15 @@ void White_Player(char board[8][8][4]){
     int valid_piece=0;
     int valid_new=0;
     char promotion_letter;
-    char original_place[3];
-    char new_place[3];
+    char original_place[5];
+    char new_place[5];
     int i, j, r, c;
     while(valid_place==0 || valid_piece==0 || valid_new==0 || invalid_move == 1){
         valid_place = 0;  valid_piece = 0;  valid_new = 0;  invalid_move = 0;
-        scanf("%s %s",original_place,new_place);
+        scanf("%4s %4s",original_place,new_place);
+        if(strlen(original_place) != 2 || strlen(new_place) != 2){printf("Invalid input"); continue;}
+        int temp_char = getchar();
+        while(temp_char !='\n' && temp_char != EOF){temp_char = getchar();}
         if(original_place[0] >= 'A' && original_place[0] <= 'H' && original_place[1] >= '1' && original_place[1] <= '8'){
             valid_place=1;
             i = 8 - (original_place[1] - '0');
@@ -176,7 +180,6 @@ void White_Player(char board[8][8][4]){
             if(must_promote( i, j, r, c)==0){
                 white_pawn( i, j, r, c);
                 if(invalid_move==1){
-
                     continue;
                 }
             }
@@ -185,30 +188,30 @@ void White_Player(char board[8][8][4]){
                 if(promotion_letter == 'R'){
                     promotion( i, j, r, c, promotion_pieceW[0]);
                     if(invalid_move==1){
-    
                         continue;
                     }
                 }
-                if(promotion_letter == 'B'){
+                else if(promotion_letter == 'B'){
                     promotion( i, j, r, c, promotion_pieceW[1]);
                     if(invalid_move==1){
-    
                         continue;
                     }
                 }
-                if(promotion_letter == 'K'){
+                else if(promotion_letter == 'K'){
                     promotion( i, j, r, c, promotion_pieceW[2]);
                     if(invalid_move==1){
-    
                         continue;
                     }
                 }
-                if(promotion_letter == 'Q'){
+                else if(promotion_letter == 'Q'){
                     promotion( i, j, r, c, promotion_pieceW[3]);
                     if(invalid_move==1){
-    
                         continue;
                     }
+                }
+                else{
+                    invalid_move = 1;
+                    continue;
                 }
             }
         }
@@ -221,12 +224,15 @@ void Black_Player(char board[8][8][4]){
     int valid_piece=0;
     int valid_new=0;
     char promotion_letter;
-    char original_place[3];
-    char new_place[3];
+    char original_place[5];
+    char new_place[5];
     int i, j, r, c;
     while(valid_place == 0 || valid_piece == 0 || valid_new == 0 || invalid_move == 1){
         valid_place = 0;  valid_piece = 0;  valid_new = 0;
-        scanf("%s %s",original_place,new_place);
+        scanf("%4s %4s",original_place,new_place);
+        if(strlen(original_place) != 2 || strlen(new_place) != 2){printf("Invalid input"); continue;}
+        int temp_char = getchar();
+        while(temp_char !='\n' && temp_char != EOF){temp_char = getchar();}
         if(original_place[0] >= 'A' && original_place[0] <= 'H' && original_place[1] >= '1' && original_place[1] <= '8'){
             valid_place=1;
             i = 8 - (original_place[1] - '0');
@@ -289,7 +295,6 @@ void Black_Player(char board[8][8][4]){
             if(must_promote( i, j, r, c)==0){
                 black_pawn( i, j, r, c);
                 if(invalid_move==1){
-
                     continue;
                 }
             }
@@ -298,30 +303,30 @@ void Black_Player(char board[8][8][4]){
                 if(promotion_letter == 'R'){
                     promotion( i, j, r, c, promotion_pieceB[0]);
                     if(invalid_move==1){
-    
                         continue;
                     }
                 }
-                if(promotion_letter == 'B'){
+                else if(promotion_letter == 'B'){
                     promotion( i, j, r, c, promotion_pieceB[1]);
                     if(invalid_move==1){
-    
                         continue;
                     }
                 }
-                if(promotion_letter == 'K'){
+                else if(promotion_letter == 'K'){
                     promotion( i, j, r, c, promotion_pieceB[2]);
                     if(invalid_move==1){
-    
                         continue;
                     }
                 }
-                if(promotion_letter == 'Q'){
+                else if(promotion_letter == 'Q'){
                     promotion( i, j, r, c, promotion_pieceB[3]);
                     if(invalid_move==1){
-    
                         continue;
                     }
+                }
+                else{
+                    invalid_move = 1;
+                    continue;
                 }
             }
         }
