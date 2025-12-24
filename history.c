@@ -201,7 +201,7 @@ void resetGame(){
             moved[i][j] = 0;
 }
 
-void saveGame(char *filename){
+void saveGame(char filename[255]){
     FILE *file = fopen(filename, "w");
     if(!file){
         printf("Error: Cannot create save file\n");
@@ -219,7 +219,7 @@ void saveGame(char *filename){
     printf("Game saved\n");
 }
 
-int loadGame(char *filename){
+int loadGame(char filename[255]){
     FILE *file = fopen(filename, "r");
     if(!file){
         printf("Error: Cannot open file\n");
@@ -258,7 +258,7 @@ int loadGame(char *filename){
     return 1;
 }
 
-void display_saved_games(){
+void displaySavedGames(){
     printf("\n--- Saved Games ---\n");
     printf("Looking for .txt files in current directory...\n\n");
     
@@ -271,12 +271,12 @@ void display_saved_games(){
     printf("\n-------------------\n\n");
 }
 
-void getFilename(char *filename, int maxLen) {
-    printf("Enter filename (without .txt): ");
+void getFilename(char filename[255], int maxLen) {
+    printf("Enter filename (without .txt) or 0 to cancel: ");
     scanf("%255s", filename);
     if(strstr(filename, ".txt") == NULL) {
         strcat(filename, ".txt");
-    }
+    } 
 }
 
 void clearHistory(){

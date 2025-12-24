@@ -22,4 +22,5 @@ int must_promote(int i, int j, int r, int c);
 void promotion(int i, int j, int r, int c, char promotion_piece[4]);
 int kingInCheck(char current_king_piece[4]);
 int isCheckmate(int colour);
+int isStalemate(int colour);
 #endif

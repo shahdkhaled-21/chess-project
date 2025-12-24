@@ -59,7 +59,7 @@ void saveGame(char *filename);
 
 int loadGame(char *filename);
 
-void display_saved_games(void);
+void displaySavedGames(void);
 
 void getFilename(char *filename, int maxLen);
 #endif
