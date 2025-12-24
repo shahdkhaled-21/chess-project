@@ -3,6 +3,7 @@
 #include <string.h>
 #include "moves.h"
 #include "specialMoves.h"
+#include "history.h"
 
 typedef unsigned char u8;
 
@@ -77,28 +78,60 @@ char notation[8][8][3]    =  {{"A8", "B8", "C8", "D8", "E8", "F8", "G8", "H8"},
                               {"A2", "B2", "C2", "D2", "E2", "F2", "G2", "H2"},
                               {"A1", "B1", "C1", "D1", "E1", "F1", "G1", "H1"}};
 
-typedef struct{
+typedef struct {
     char original_place[3];
     char new_place[3];
     char moved_piece[4];
     char captured_piece[4];
-}History;
-
-History history[5000]={};
-
-void initialize_history(History*history){
-    history->original_place[3] ;
-    history-> new_place[3] ;
-    history->moved_piece[4] ;
-    history->captured_piece[4];
-}
-
-void Add_to_history(History*history){
     
-}
+    int moved_flag_src;
+    int moved_flag_dest;
+    int was_castling;
+    int was_en_passant;
+    int was_promotion;
+    int en_passant_col;
+    int counterW_before;
+    int counterB_before;
+    int counterW_after;
+    int counterB_after;
+    int rook_src_row;
+    int rook_src_col;
+    int rook_dest_row;
+    int rook_dest_col;
+    int rook_moved_src;
+    int rook_moved_dest;
+    char original_pawn[4];
+} History;
 
-void undo(){}
-void redo(){}
+extern History history[6000];
+extern historyCount;
+
+void moveFromCoords(char from[3], char to[3]){
+    j = from[0] - 'A';
+    i = 8 - (from[1] - '0');
+    c = to[0] - 'A';
+    r = 8 - (to[1] - '0');
+    invalid_move = 0;
+    char piece[4] = board[i][j];
+    if(piece[0] == '.' || piece[0] == '-'){
+        invalid_move = 1;
+        return;
+    }
+    if(isWhite(piece)) colour = 0;
+    else colour = 1;
+    if(piece[2] == WhiteKing || piece[2] == BlackKing)
+        king(i, j, r, c, colour);
+    else if(piece == WhiteRook || piece[2] == BlackRook)
+        rook(i, j, r, c, colour);
+    else if(piece[2] == WhitePawn || piece[2] == BlackPawn)
+        (colour == 0) ? white_pawn(i, j, r, c) : black_pawn(i, j, r, c);
+    else if(piece[2] == WhiteKnight || piece[2] == BlackKnight)
+        knight(i, j, r, c, colour);
+    else if(piece[2] == WhiteBishop || piece[2] == BlackBishop)
+        bishop(i, j, r, c, colour);
+    else if(piece[2] == WhiteQueen || piece[2] == BlackQueen)
+        queen(i, j, r, c, colour);
+}
 
 void White_Player(char board[8][8][4]){
     int colour = 0;
@@ -145,9 +178,10 @@ void White_Player(char board[8][8][4]){
             printf("Enter a valid NEW place\n");
             continue;
         }
+        addToHistory(original_place, new_place, board[i][j], board[r][c], i, j, r, c);
         if((u8) board[i][j][2] == WhiteKing){
-            //castling
-            king( i, j, r, c, colour);
+            if(i - r == 0 && abs(j - c) == 2) castling(i, j, r, c);
+            else king( i, j, r, c, colour);
             if(invalid_move==1){
                 continue;
             }
@@ -215,6 +249,8 @@ void White_Player(char board[8][8][4]){
                 }
             }
         }
+        history[historyCount - 1].counterW_after = counterW;
+        history[historyCount - 1].counterB_after = counterB;
     } 
 }
 
@@ -263,9 +299,13 @@ void Black_Player(char board[8][8][4]){
             printf("Enter a valid NEW place\n");
             continue;
         }
+        addToHistory(original_place, new_place, board[i][j], board[r][c], i, j, r, c);
         if((u8) board[i][j][2] == BlackKing){
-            //castling and check
-            king( i, j, r, c, colour);
+            if(i - r == 0 && abs(j - c) == 2) castling(i, j, r, c);
+            else king( i, j, r, c, colour);
+            if(invalid_move==1){
+                continue;
+            }
         }
         else if((u8) board[i][j][2] == BlackQueen){
             queen( i, j, r, c, colour);
@@ -330,6 +370,8 @@ void Black_Player(char board[8][8][4]){
                 }
             }
         }
+        history[historyCount - 1].counterW_after = counterW;
+        history[historyCount - 1].counterB_after = counterB;
     } 
 }
 
