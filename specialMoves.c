@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "moves.h"
+
 extern char board[8][8][4];
 extern char killed_arrW[15][4];
 extern char killed_arrB[15][4];
@@ -128,7 +129,7 @@ int isSquareAttacked(int r, int c, int myCurruntColour){
 }
 
 void castling(int i, int j, int r, int c){
-   if(strcmp(board[i][j], whiteKing) == 0){
+   if((u8) board[i][j][2] == WhiteKing){
     if(haveMovedAt(7,4) == 0){
         if(r == 7 && c == 6 && strcmp(board[7][7], whiteRook) == 0 && haveMovedAt(7, 7) == 0 && board[7][5][0] == '-' 
         && board[7][6][0] == '.' && isSquareAttacked(7, 4, 0) == 0 && isSquareAttacked(7, 5, 0) == 0 && isSquareAttacked(7, 6, 0) == 0){
@@ -154,7 +155,7 @@ void castling(int i, int j, int r, int c){
         }
     }
 }
-    if(strcmp(board[i][j], blackKing) == 0){
+    if(board[i][j][2] == BlackKing){
         if(haveMovedAt(0,4) == 0){
             if(r == 0 && c == 6 && strcmp(board[0][7], blackRook) == 0 && haveMovedAt(0,7) == 0 && board[0][5][0] == '.' && board[0][6][0] == '-'
             && isSquareAttacked(0, 4, 1) == 0 && isSquareAttacked(0, 5, 1) == 0 && isSquareAttacked(0, 6, 1) == 0){

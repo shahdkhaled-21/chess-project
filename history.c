@@ -2,8 +2,22 @@
 #include <stdlib.h>
 #include <string.h>
 #include "moves.h"
-#include "board.h"
 
+//third byte in white pieces
+#define WhiteKing 0x94
+#define WhiteQueen 0x95
+#define WhiteRook 0x96
+#define WhiteBishop 0x97
+#define WhiteKnight 0x98
+#define WhitePawn 0x99
+
+//third byte in black pieces
+#define BlackKing 0x9A
+#define BlackQueen 0x9B
+#define BlackRook 0x9C
+#define BlackBishop 0x9D
+#define BlackKnight 0x9E
+#define BlackPawn 0x9F
 typedef struct {
     char original_place[3];
     char new_place[3];
@@ -29,8 +43,8 @@ typedef struct {
     char original_pawn[4];
 } History;
 
+extern int i, j, r, c;
 extern char board[8][8][4];
-extern char initialBoard[8][8][4];
 extern int moved[8][8];
 extern int counterW;
 extern int counterB;
@@ -41,6 +55,70 @@ extern char killed_arrB[15][4];
 History history[6000] = {};
 int historyCount = 0;
 int historyPosition = 0;
+
+char initialBoard[8][8][4] = {{"\u265C","\u265E","\u265D","\u265B","\u265A","\u265D","\u265E","\u265C"},
+                              {"\u265F","\u265F","\u265F","\u265F","\u265F","\u265F","\u265F","\u265F"},
+                              {"-", ".", "-", ".", "-", ".", "-", "."},
+                              {".", "-", ".", "-", ".", "-", ".", "-"},
+                              {"-", ".", "-", ".", "-", ".", "-", "."},
+                              {".", "-", ".", "-", ".", "-", ".", "-"},
+                              {"\u2659","\u2659","\u2659","\u2659","\u2659","\u2659","\u2659","\u2659"},
+                              {"\u2656","\u2658","\u2657","\u2655","\u2654","\u2657","\u2658","\u2656"}};
+
+void moveFromCoords(char from[3], char to[3]){
+    j = from[0] - 'A';
+    i = 8 - (from[1] - '0');
+    c = to[0] - 'A';
+    r = 8 - (to[1] - '0');
+    invalid_move = 0;
+    char piece[4];
+    strcpy(piece, board[i][j]);
+    if(piece[0] == '.' || piece[0] == '-'){
+        invalid_move = 1;
+        return;
+    }
+    if(isWhite(piece)) colour = 0;
+    else colour = 1;
+    if(piece[2] == WhiteKing || piece[2] == BlackKing)
+        king(i, j, r, c, colour);
+    else if(piece[2] == WhiteRook || piece[2] == BlackRook)
+        rook(i, j, r, c, colour);
+    else if(piece[2] == WhitePawn || piece[2] == BlackPawn)
+        (colour == 0) ? white_pawn(i, j, r, c) : black_pawn(i, j, r, c);
+    else if(piece[2] == WhiteKnight || piece[2] == BlackKnight)
+        knight(i, j, r, c, colour);
+    else if(piece[2] == WhiteBishop || piece[2] == BlackBishop)
+        bishop(i, j, r, c, colour);
+    else if(piece[2] == WhiteQueen || piece[2] == BlackQueen)
+        queen(i, j, r, c, colour);
+}
+
+void historyInitialization(){
+    if(historyCount==0){
+        History*h = &history[historyCount];
+        memset(h->original_place, 0, sizeof(h->original_place));
+        memset(h->new_place, 0, sizeof(h->new_place));
+        memset(h->moved_piece, 0, sizeof(h->moved_piece));
+        memset(h->captured_piece, 0, sizeof(h->captured_piece));
+        h->moved_flag_src = 0;
+        h->moved_flag_dest = 0;
+        h->was_castling = 0;
+        h->was_en_passant = 0;
+        h->was_promotion = 0;
+        memset(h->original_pawn, 0, sizeof(h->original_pawn));
+        h->en_passant_col = -1;
+        h->rook_src_row = -1;
+        h->rook_src_col = -1;
+        h->rook_dest_row = -1;
+        h->rook_dest_col = -1;
+        h->rook_moved_src = 0;
+        h->rook_moved_dest = 0;
+        h->counterB_before = 0;
+        h->counterB_after = 0;
+        h->counterW_after = 0;
+        h->counterW_before = 0;
+    }
+}
 
 void addToHistory(char original[3], char newPlace[3], char piece[4], char captured[4], int i, int j, int r, int c){
     if(historyPosition < historyCount){
@@ -67,8 +145,13 @@ void addToHistory(char original[3], char newPlace[3], char piece[4], char captur
     h -> rook_src_col = -1;
     h -> rook_dest_row = -1;
     h -> rook_dest_col = -1;
+    h -> rook_moved_dest = 0;
+    h -> rook_moved_src = 0;
+    h -> counterB_after = 0;
+    h -> counterW_after = 0;
     historyCount++;
     historyPosition = historyCount;
+    printf("Saved to History: %s to %s, Count: %d\n", h->original_place, h->new_place, historyCount);
 }
 
 void markCastling(int rook_si, int rook_sj, int rook_di, int rook_dj){
@@ -95,6 +178,11 @@ void markPromotion(char original_pawn[4]){
     History *h = &history[historyCount - 1];
     h -> was_promotion = 1;
     memcpy(h -> original_pawn, original_pawn, 4);
+}
+
+void clearHistory(){
+    historyCount = 0;
+    historyPosition = 0;
 }
 
 void undo(){
@@ -274,12 +362,9 @@ void displaySavedGames(){
 void getFilename(char filename[255], int maxLen) {
     printf("Enter filename (without .txt) or 0 to cancel: ");
     scanf("%255s", filename);
-    if(strstr(filename, ".txt") == NULL) {
-        strcat(filename, ".txt");
-    } 
-}
-
-void clearHistory(){
-    historyCount = 0;
-    historyPosition = 0;
+    if(filename[0] != '0'){
+        if(strstr(filename, ".txt") == NULL) {
+            strcat(filename, ".txt");
+        } 
+    }
 }

@@ -1,5 +1,21 @@
 #ifndef HISTORY_H
 #define HISTORY_H
+
+//third byte in white pieces
+#define WhiteKing 0x94
+#define WhiteQueen 0x95
+#define WhiteRook 0x96
+#define WhiteBishop 0x97
+#define WhiteKnight 0x98
+#define WhitePawn 0x99
+
+//third byte in black pieces
+#define BlackKing 0x9A
+#define BlackQueen 0x9B
+#define BlackRook 0x9C
+#define BlackBishop 0x9D
+#define BlackKnight 0x9E
+#define BlackPawn 0x9F
 typedef struct {
     char original_place[3];
     char new_place[3];
@@ -30,6 +46,7 @@ typedef struct {
     char original_pawn[4];
 } History;
 
+extern int i, j, r, c;
 extern char board[8][8][4];
 extern char initialBoard[8][8][4];
 extern int moved[8][8];
@@ -38,6 +55,10 @@ extern int counterB;
 extern int invalid_move;
 extern char killed_arrW[15][4];
 extern char killed_arrB[15][4];
+
+void historyInitialization();
+
+void moveFromCoords(char from[3], char to[3]);
 
 void addToHistory(char original[3], char newPlace[3], char piece[4], char captured[4], int i, int j, int r, int c);
 
