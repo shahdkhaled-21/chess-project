@@ -422,3 +422,30 @@ void promotion(int i, int j, int r, int c, char promotion_piece[4]){
         }
     }       
 }
+
+void escapingKingInCheck(int i, int j, int r, int c, int colour){
+    char kPiece[4];
+    if(colour == 1) memcpy(kPiece, whiteKing, 4);
+    else memcpy(kPiece, blackKing, 4);
+    if(kingInCheck(kPiece) == 1){
+        printf("King in check, Enter a valid place to escape: ");
+        if(board[i][j][2] == BlackKing || board[i][j][2] == WhiteKing){
+            king(i, j, r, c, colour);
+        }else if(board[i][j][2] == BlackRook || board[i][j][2] == WhiteRook){
+            rook(i, j, r, c, colour);
+        }else if(board[i][j][2] == BlackQueen || board[i][j][2] == WhiteQueen){
+            queen(i, j, r, c, colour);
+        }else if(board[i][j][2] == BlackBishop || board[i][j][2] == WhiteBishop){
+            bishop(i, j, r, c, colour);
+        }else if(board[i][j][2] == BlackKnight || board[i][j][2] == WhiteKnight){
+            knight(i, j, r, c, colour);
+        }else if(board[i][j][2] == BlackPawn){
+            black_pawn(i, j, r, c);
+        }else if(board[i][j][2] == WhitePawn){
+            white_pawn(i, j, r, c);
+        }
+        if(kingInCheck(kPiece) == 1){
+            printf("Invalid move, King still in check\n");
+        }
+    }
+}

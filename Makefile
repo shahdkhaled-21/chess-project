@@ -24,6 +24,7 @@ specialMoves:specialMoves.o moves.o
 specialMoves.o : specialMoves.c moves.h
 		gcc -c specialMoves.c
 
-moves.o: moves.c 
+moves.o: moves.c specialMoves.h
 		gcc -c moves.c 
- 
+clean:
+	rm -f *.o chess board history specialMoves

@@ -17,7 +17,7 @@ extern int checking_checkmate;
 
 void castling(int i, int j, int r, int c);
 int haveMovedAt(int r, int c);
-int isSquareAttacked(int i, int j);
+int isSquareAttacked(int r, int c, int myCurruntColour);
 int must_promote(int i, int j, int r, int c);
 void promotion(int i, int j, int r, int c, char promotion_piece[4]);
 int kingInCheck(char current_king_piece[4]);

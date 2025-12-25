@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <ctype.h>
 #include "moves.h"
 #include "specialMoves.h"
 #include "history.h"
@@ -83,100 +84,183 @@ char notation[8][8][3]    =  {{"A8", "B8", "C8", "D8", "E8", "F8", "G8", "H8"},
 extern History history[6000];
 extern int historyCount;
 
-void player(char board[8][8][4],int turns){
-    int valid_place=0;  int colour = (turns % 2);
-    int valid_piece=0;  char(*promotion_pieces)[4] = (colour == 1)? promotion_pieceW : promotion_pieceB;
-    int valid_new=0;    int option;    char filename[255];   int history_added = 0;
+void toUpperCase(char *str) {
+    for(int i = 0; str[i]; i++) {
+        str[i] = toupper(str[i]);
+    }
+}
+
+int player(char board[8][8][4], int turns){
+    int valid_place = 0;
+    int colour = (turns % 2);
+    int valid_piece = 0;
+    char(*promotion_pieces)[4] = (colour == 1) ? promotion_pieceW : promotion_pieceB;
+    int valid_new = 0;
+    int option;
+    char filename[255];
+    int history_added = 0;
     char promotion_letter;
-    char input[10];
-    char original_place[3];
-    char new_place[3];
-    while(valid_place==0 || valid_piece==0 || valid_new==0 || invalid_move == 1){
-        valid_place = 0;  valid_piece = 0;  valid_new = 0;  invalid_move = 0;
-        printf("Enter your move(e.g A1 B2):");
-        if(fgets(input, sizeof(input), stdin) != NULL){
-            sscanf(input ,"%2s %2s",original_place,new_place);
+    char input[20];
+    char original_place[10];
+    char new_place[10];
+    int save_option;
+    
+    while(valid_place == 0 || valid_piece == 0 || valid_new == 0 || invalid_move == 1) {
+        valid_place = 0;
+        valid_piece = 0;
+        valid_new = 0;
+        invalid_move = 0;
+        history_added = 0;
+        printf("======================================\n");
+        if(turns % 2 == 1) {
+            printf("        WHITE'S TURN\n");
+        } else {
+            printf("        BLACK'S TURN\n");
         }
-        if(original_place[0] >= 'A' && original_place[0] <= 'H' && original_place[1] >= '1' && original_place[1] <= '8'){
-            valid_place=1;
-            i = 8 - (original_place[1] - '0');
-            j = original_place[0] - 'A';
-        }
-        else{
-            valid_place = 0;
-            printf("Enter a valid place\n");
+        printf("======================================\n\n");
+        printf("Choose an action:\n1. Make a move\n2. Undo last move\n3. Redo move\n4. Save game\n5. Return to startup menu\n");
+        printf("\nEnter your choice (1-5): ");
+        if(scanf("%d", &option) != 1) {
+            while(getchar() != '\n');
+            printf("Invalid input! Please enter a number.\n");
             continue;
         }
-        if(valid_place==1){
-            if((colour == 1 && isWhite(board[i][j])) ||( colour == 0 && (isBlack(board[i][j])))){
-                valid_piece=1;
+        while(getchar() != '\n');
+        switch(option) {
+            case 1:
+                goto start;
+                
+            case 2:
+                undo();
+                return 0;
+                
+            case 3:
+                redo();
+                return 0;
+                
+            case 4:
+                printf("Enter a filename for your save: ");
+                fgets(filename, 255, stdin);
+                filename[strcspn(filename, "\n")] = 0; // Remove newline
+                saveGame(filename);
+                continue;
+                
+            case 5:
+                printf("\nDo you want to save before returning to menu?\n");
+                printf("1. Yes, save and return\n");
+                printf("2. No, return without saving\n");
+                printf("Enter your choice: ");
+                if(scanf("%d", &save_option) != 1) {
+                    while(getchar() != '\n');
+                    printf("Invalid input!\n");
+                    continue;
+                }
+                while(getchar() != '\n');
+                if(save_option == 1) {
+                    printf("Enter a filename for your save: ");
+                    fgets(filename, 255, stdin);
+                    filename[strcspn(filename, "\n")] = 0;
+                    saveGame(filename);
+                }
+                return 1;
+            default:
+                printf("Invalid option! Please choose a number between 1 and 5.\n");
+                continue;
+        }
+        start:
+        if(turns % 2 == 1) {
+            printf("\nWhite's turn - Enter your move (e.g., A2 A4 or a2 a4): ");
+        } else {
+            printf("\nBlack's turn - Enter your move (e.g., A7 A5 or a7 a5): ");
+        }
+        if(fgets(input, sizeof(input), stdin) != NULL) {
+            if(sscanf(input, "%9s %9s", original_place, new_place) != 2) {
+                printf("Invalid format! Please enter move as: FROM TO (e.g., A2 A4)\n");
+                continue;
             }
-            else{
+            toUpperCase(original_place);
+            toUpperCase(new_place);
+        }
+        if(original_place[0] >= 'A' && original_place[0] <= 'H' && 
+           original_place[1] >= '1' && original_place[1] <= '8') {
+            valid_place = 1;
+            i = 8 - (original_place[1] - '0');
+            j = original_place[0] - 'A';
+        } else {
+            valid_place = 0;
+            printf("Invalid starting position! Use format like A2, B4, etc.\n");
+            continue;
+        }
+        if(valid_place == 1) {
+            if((colour == 1 && isWhite(board[i][j])) || 
+               (colour == 0 && (isBlack(board[i][j])))) {
+                valid_piece = 1;
+            } else {
                 valid_piece = 0;
-                printf("Choose only a piece of your colour\n");
+                if(board[i][j][0] == '-' || board[i][j][0] == '.') {
+                    printf("No piece at that position!\n");
+                } else {
+                    printf("That's not your piece! Choose a piece of your color.\n");
+                }
                 continue;
             }
         }
-        if(new_place[0] >= 'A' && new_place[0] <= 'H' && new_place[1] >= '1' && new_place[1] <= '8'){
-            valid_new=1;
+        if(new_place[0] >= 'A' && new_place[0] <= 'H' && 
+           new_place[1] >= '1' && new_place[1] <= '8') {
+            valid_new = 1;
             r = 8 - (new_place[1] - '0');
             c = new_place[0] - 'A';
-        }
-        else{
+        } else {
             valid_new = 0;
-            printf("Enter a valid NEW place\n");
+            printf("Invalid destination! Use format like A4, B6, etc.\n");
             continue;
         }
-        if((u8) board[i][j][2] == WhiteKing || (u8) board[i][j][2] == BlackKing){
+        if((u8)board[i][j][2] == WhiteKing || (u8)board[i][j][2] == BlackKing) {
             if(i - r == 0 && abs(j - c) == 2) {
                 castling(i, j, r, c);
                 addToHistory(original_place, new_place, board[i][j], board[r][c], i, j, r, c);
-                markCastling(i, j, r, c);// not sure***************
+                markCastling(i, j, r, c);
                 history_added = 1;
+            } else {
+                king(i, j, r, c, colour);
             }
-            else {king( i, j, r, c, colour);}
-            if(invalid_move==1){
-                continue;
-            }     
-        }
-        else if((u8) board[i][j][2] == WhiteQueen || (u8) board[i][j][2] == BlackQueen){
-            queen( i, j, r, c, colour);
-            if(invalid_move==1){
+            if(invalid_move == 1) {
+                printf("Invalid king move!\n");
                 continue;
             }
         }
-        else if((u8) board[i][j][2] == WhiteRook || (u8) board[i][j][2] == BlackRook){
-            rook( i, j, r, c, colour);
-            if(invalid_move==1){
+        else if((u8)board[i][j][2] == WhiteQueen || (u8)board[i][j][2] == BlackQueen) {
+            queen(i, j, r, c, colour);
+            if(invalid_move == 1) {
+                printf("Invalid queen move!\n");
                 continue;
             }
         }
-        else if((u8) board[i][j][2] == WhiteBishop || (u8) board[i][j][2] == BlackBishop){
-            bishop( i, j, r, c, colour);
-            if(invalid_move==1){
+        else if((u8)board[i][j][2] == WhiteRook || (u8)board[i][j][2] == BlackRook) {
+            rook(i, j, r, c, colour);
+            if(invalid_move == 1) {
+                printf("Invalid rook move!\n");
                 continue;
             }
         }
-        else if((u8) board[i][j][2] == WhiteKnight || (u8) board[i][j][2] == BlackKnight){
-            knight( i, j, r, c, colour);
-            if(invalid_move==1){
+        else if((u8)board[i][j][2] == WhiteBishop || (u8)board[i][j][2] == BlackBishop) {
+            bishop(i, j, r, c, colour);
+            if(invalid_move == 1) {
+                printf("Invalid bishop move!\n");
                 continue;
             }
         }
-        else if((u8) board[i][j][2] == WhitePawn && must_promote(i, j, r, c)==0){
-            white_pawn( i, j, r, c);
-            if(invalid_move==1){
+        else if((u8)board[i][j][2] == WhiteKnight || (u8)board[i][j][2] == BlackKnight) {
+            knight(i, j, r, c, colour);
+            if(invalid_move == 1) {
+                printf("Invalid knight move!\n");
                 continue;
             }
-            if(enPassantDone == 1){
-                addToHistory(original_place, new_place, board[i][j], board[r][c], i, j, r, c);
-                markEnPassant(c);
-                history_added = 1;
-            } 
         }
-        else if((u8) board[i][j][2] == BlackPawn && must_promote(i, j, r, c)==0){
-            black_pawn( i, j, r, c);
-            if(invalid_move==1){
+        else if((u8)board[i][j][2] == WhitePawn && must_promote(i, j, r, c) == 0) {
+            white_pawn(i, j, r, c);
+            if(invalid_move == 1) {
+                printf("Invalid pawn move!\n");
                 continue;
             }
             if(enPassantDone == 1) {
@@ -185,85 +269,86 @@ void player(char board[8][8][4],int turns){
                 history_added = 1;
             }
         }
-        else if(((u8) board[i][j][2] == WhitePawn || (u8) board[i][j][2] == BlackPawn) && must_promote( i, j, r, c)==1){
-            printf("Enter the promotion piece (R, B, K, Q):\n");
-            scanf(" %c",&promotion_letter);
-            if(promotion_letter == 'R'){
-                promotion( i, j, r, c, promotion_pieces[0]);
-                if(invalid_move==1){
-                    continue;
-                }
+        else if((u8)board[i][j][2] == BlackPawn && must_promote(i, j, r, c) == 0) {
+            black_pawn(i, j, r, c);
+            if(invalid_move == 1) {
+                printf("Invalid pawn move!\n");
+                continue;
             }
-            else if(promotion_letter == 'B'){
-                promotion( i, j, r, c, promotion_pieces[1]);
-                if(invalid_move==1){
-                    continue;
-                }
+            if(enPassantDone == 1) {
+                addToHistory(original_place, new_place, board[i][j], board[r][c], i, j, r, c);
+                markEnPassant(c);
+                history_added = 1;
             }
-            else if(promotion_letter == 'K'){
-                promotion( i, j, r, c, promotion_pieces[2]);
-                if(invalid_move==1){                        
-                    continue;
-                }
+        }
+        else if(((u8)board[i][j][2] == WhitePawn || (u8)board[i][j][2] == BlackPawn) && 
+                must_promote(i, j, r, c) == 1) {
+            printf("Pawn promotion! Enter the piece (Q=Queen, R=Rook, B=Bishop, K=Knight): ");
+            scanf(" %c", &promotion_letter);
+            promotion_letter = toupper(promotion_letter);
+            
+            if(promotion_letter == 'R') {
+                promotion(i, j, r, c, promotion_pieces[0]);
             }
-            else if(promotion_letter == 'Q'){
-                promotion( i, j, r, c, promotion_pieces[3]);
-                if(invalid_move==1){
-                    continue;
-                }
+            else if(promotion_letter == 'B') {
+                promotion(i, j, r, c, promotion_pieces[1]);
             }
-            else{
+            else if(promotion_letter == 'K') {
+                promotion(i, j, r, c, promotion_pieces[2]);
+            }
+            else if(promotion_letter == 'Q') {
+                promotion(i, j, r, c, promotion_pieces[3]);
+            }
+            else {
+                printf("Invalid promotion piece!\n");
                 invalid_move = 1;
                 continue;
             }
+            
+            if(invalid_move == 1) {
+                printf("Invalid promotion move!\n");
+                continue;
+            }
+            
             addToHistory(original_place, new_place, board[i][j], board[r][c], i, j, r, c);
-            if(colour == 1){markPromotion(whitePawn);}
-            else{markPromotion(blackPawn);}
+            if(colour == 1) {
+                markPromotion(whitePawn);
+            } else {
+                markPromotion(blackPawn);
+            }
             history_added = 1;
         }
-        if(history_added == 0){addToHistory(original_place, new_place, board[i][j], board[r][c], i, j, r, c);}
+        
+        if(history_added == 0) {
+            addToHistory(original_place, new_place, board[i][j], board[r][c], i, j, r, c);
+        }
         history[historyCount - 1].counterW_after = counterW;
-        history[historyCount - 1].counterB_after = counterB; 
+        history[historyCount - 1].counterB_after = counterB;
     }
-    printf("Enter an option(1, 2, 3 OR 4):\n 1.Save Game.\t 2.Undo.\t 3.Redo.\t 4.None\n");
-    scanf("%d",&option);
-    while(getchar() != '\n');
-    switch (option){
-        case 1:
-            printf("Enter a name for your file:");
-            fgets(filename, 255, stdin);
-            saveGame(filename);
-            break;
-        case 2:
-            undo();
-            break;
-        case 3:
-            redo();
-            break;
-        case 4:
-            return;
-        default:
-            printf("Invaid option,TRY AGAIN. Just choose an existing option\n");
-    }   
+    
+    return 0;
 }
 
-char display(char board[8][8][4],char width_arr[8][2]){
-    for(int k=0 ; k<8 ; k++){
-        printf("       %s",width_arr[k]);
+char display(char board[8][8][4], char width_arr[8][2]) {
+    printf("\n");
+    for(int k = 0; k < 8; k++) {
+        printf("       %s", width_arr[k]);
     }
+    printf("         Captured by White\tCaptured by Black");
     printf("\n\n");
-    for(int i = 0; i < 8; i++){
-        printf("%d  ",8-i);
-        for(int j = 0; j <8; j++){
-            printf("    %s   ",board[i][j]);
+    
+    for(int i = 0; i < 8; i++) {
+        printf("%d  ", 8 - i);
+        for(int j = 0; j < 8; j++) {
+            printf("    %s   ", board[i][j]);
         }
-        printf("    %d ",8-i);
-        printf("%s\t%s", killed_arrB[i],killed_arrW[i]);
-        if(killed_arrW[i][2] == WhitePawn){}
+        printf("    %d ", 8 - i);
+        printf("        %s        \t        %s        ", killed_arrB[i], killed_arrW[i]);
         printf("\n\n");
     }
-    for(int k=0 ; k<8 ; k++){
-        printf("       %s",width_arr[k]);
+    
+    for(int k = 0; k < 8; k++) {
+        printf("       %s", width_arr[k]);
     }
-    printf("\n");
+    printf("\n\n");
 }

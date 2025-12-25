@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "specialMoves.h"
 extern char board[8][8][4];
 extern int i, j, r, c;
 extern int counterW;
@@ -309,10 +310,8 @@ void white_pawn(int i, int j, int r, int c){
             firstMove = 1;
             if(firstMove == 1 && i-r == 2 && j==c && (board[r+1][c][0] == '.' || board[r+1][c][0] == '-')){
                 if(board[r][c][0] == '-' || board[r][c][0] == '.'){
-                    char temp[4];
-                    memcpy(temp, board[r][c], 4);
                     memcpy(board[r][c], board[i][j], 4);
-                    memcpy(board[i][j], temp, 4);
+                    change(i, j);
                     moved_pawnW[r][c] = 2;
                     moved_pawnW[i][j] = 0;
                     moved[r][c] = 1;
@@ -439,10 +438,8 @@ void black_pawn( int i, int j, int r, int c){
             firstMove = 1;
             if(firstMove == 1 && r-i == 2 && j==c && (board[r-1][c][0] == '.' || board[r-1][c][0] == '-')){
                 if(board[r][c][0] == '-' || board[r][c][0] == '.'){
-                    char temp[4];
-                    memcpy(temp, board[r][c], 4);
                     memcpy(board[r][c], board[i][j], 4);
-                    memcpy(board[i][j], temp, 4);
+                    change(i, j);
                     moved_pawnB[r][c] = 2;
                     moved_pawnB[i][j] = 0;
                     moved[r][c] = 1;
@@ -755,38 +752,81 @@ void rook(int i, int j, int r, int c, int colour){
 
 void king(int i, int j, int r, int c, int colour){
     invalid_move = 0;
+    int valid_king_move = (abs(r - i) <= 1 && abs(c - j) <= 1 && !(r == i && c == j));
+    if(!valid_king_move){
+        invalid_move = 1;
+        if(!checking_checkmate && !checking_stalemate) printf("Invalid move\n");
+        return;
+    }
     if(board[r][c][0] == '-' || board[r][c][0] == '.'){
-        if((r == i && c == j + 1) || (r == i && c == j - 1) || (r == i + 1 && c == j) || (r == i - 1 && c == j) || (r == i + 1 && c == j + 1) || (r == i + 1 && c == j - 1) || (r == i - 1 && c == j - 1) || (r == i - 1 && c == j + 1)){
+        char temp_src[4], temp_dest[4];
+        int temp_moved_src, temp_moved_dest;
+        memcpy(temp_src, board[i][j], 4);
+        memcpy(temp_dest, board[r][c], 4);
+        temp_moved_src = moved[i][j];
+        temp_moved_dest = moved[r][c];
+        memcpy(board[r][c], board[i][j], 4);
+        strcpy(board[i][j], ".");
+        moved[r][c] = 1;
+        moved[i][j] = 0;
+        char king_piece[4];
+        if(colour == 0) memcpy(king_piece, whiteKing, 4);
+        else memcpy(king_piece, blackKing, 4);
+        int would_be_in_check = isSquareAttacked(r, c, colour);
+        memcpy(board[i][j], temp_src, 4);
+        memcpy(board[r][c], temp_dest, 4);
+        moved[i][j] = temp_moved_src;
+        moved[r][c] = temp_moved_dest;
+        if(would_be_in_check){
+            invalid_move = 1;
+            if(!checking_checkmate && !checking_stalemate) printf("King cannot move into check\n");
+        } else {
             moved[r][c] = 1;
             moved[i][j] = 0;
             memcpy(board[r][c], board[i][j], 4);
-            change( i, j);
-         }  else{
-            invalid_move=1;
-            if(!checking_checkmate && !checking_stalemate) printf("Invalid move\n");
-         }
+            change(i, j);
+        }
     }
-     else  if(piece_colour(board[r][c]) != colour){
-                if((u8) board[r][c][2] == WhiteKing || (u8) board[r][c][2] == BlackKing){
-                        if(isWhite(board[r][c])){
-                            memcpy(killed_arrW[counterW], board[r][c], 4);
-                            counterW++;
-                        }
-                        else{
-                            memcpy(killed_arrB[counterB], board[r][c], 4);
-                            counterB++;
-                        }
-                        moved[r][c] = 1;
-                        moved[i][j] = 0;
-                        memcpy(board[r][c], board[i][j], 4);
-                        change( i, j);
-                    }else{
-                        invalid_move=1;
-                        if(!checking_checkmate && !checking_stalemate) printf("Invalid move\n");
-                    }
-
-     }  else if(piece_colour(board[r][c]) == colour){
-        invalid_move=1;
+    else if(piece_colour(board[r][c]) != colour){
+        if((u8) board[r][c][2] == WhiteKing || (u8) board[r][c][2] == BlackKing){
+            invalid_move = 1;
+            if(!checking_checkmate && !checking_stalemate) printf("Cannot capture the opponent's king\n");
+            return;
+        }
+        char temp_src[4], temp_dest[4];
+        int temp_moved_src, temp_moved_dest;
+        memcpy(temp_src, board[i][j], 4);
+        memcpy(temp_dest, board[r][c], 4);
+        temp_moved_src = moved[i][j];
+        temp_moved_dest = moved[r][c];
+        memcpy(board[r][c], board[i][j], 4);
+        strcpy(board[i][j], ".");
+        moved[r][c] = 1;
+        moved[i][j] = 0;
+        int would_be_in_check = isSquareAttacked(r, c, colour);
+        memcpy(board[i][j], temp_src, 4);
+        memcpy(board[r][c], temp_dest, 4);
+        moved[i][j] = temp_moved_src;
+        moved[r][c] = temp_moved_dest;
+        if(would_be_in_check){
+            invalid_move = 1;
+            if(!checking_checkmate && !checking_stalemate) printf("King cannot move into check\n");
+        } else {
+            if(isWhite(board[r][c])){
+                memcpy(killed_arrW[counterW], board[r][c], 4);
+                counterW++;
+            } else {
+                memcpy(killed_arrB[counterB], board[r][c], 4);
+                counterB++;
+            }
+            moved[r][c] = 1;
+            moved[i][j] = 0;
+            memcpy(board[r][c], board[i][j], 4);
+            change(i, j);
+        }
+    }
+    else if(piece_colour(board[r][c]) == colour){
+        invalid_move = 1;
         if(!checking_checkmate && !checking_stalemate) printf("Cannot eat a friendly piece\n");
-     }
+    }
 }

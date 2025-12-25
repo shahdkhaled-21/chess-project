@@ -3,6 +3,8 @@
 #include <string.h>
 #include "moves.h"
 
+typedef unsigned char u8;
+
 //third byte in white pieces
 #define WhiteKing 0x94
 #define WhiteQueen 0x95
@@ -65,61 +67,6 @@ char initialBoard[8][8][4] = {{"\u265C","\u265E","\u265D","\u265B","\u265A","\u2
                               {"\u2659","\u2659","\u2659","\u2659","\u2659","\u2659","\u2659","\u2659"},
                               {"\u2656","\u2658","\u2657","\u2655","\u2654","\u2657","\u2658","\u2656"}};
 
-void moveFromCoords(char from[3], char to[3]){
-    j = from[0] - 'A';
-    i = 8 - (from[1] - '0');
-    c = to[0] - 'A';
-    r = 8 - (to[1] - '0');
-    invalid_move = 0;
-    char piece[4];
-    strcpy(piece, board[i][j]);
-    if(piece[0] == '.' || piece[0] == '-'){
-        invalid_move = 1;
-        return;
-    }
-    if(isWhite(piece)) colour = 0;
-    else colour = 1;
-    if(piece[2] == WhiteKing || piece[2] == BlackKing)
-        king(i, j, r, c, colour);
-    else if(piece[2] == WhiteRook || piece[2] == BlackRook)
-        rook(i, j, r, c, colour);
-    else if(piece[2] == WhitePawn || piece[2] == BlackPawn)
-        (colour == 0) ? white_pawn(i, j, r, c) : black_pawn(i, j, r, c);
-    else if(piece[2] == WhiteKnight || piece[2] == BlackKnight)
-        knight(i, j, r, c, colour);
-    else if(piece[2] == WhiteBishop || piece[2] == BlackBishop)
-        bishop(i, j, r, c, colour);
-    else if(piece[2] == WhiteQueen || piece[2] == BlackQueen)
-        queen(i, j, r, c, colour);
-}
-
-void historyInitialization(){
-    if(historyCount==0){
-        History*h = &history[historyCount];
-        memset(h->original_place, 0, sizeof(h->original_place));
-        memset(h->new_place, 0, sizeof(h->new_place));
-        memset(h->moved_piece, 0, sizeof(h->moved_piece));
-        memset(h->captured_piece, 0, sizeof(h->captured_piece));
-        h->moved_flag_src = 0;
-        h->moved_flag_dest = 0;
-        h->was_castling = 0;
-        h->was_en_passant = 0;
-        h->was_promotion = 0;
-        memset(h->original_pawn, 0, sizeof(h->original_pawn));
-        h->en_passant_col = -1;
-        h->rook_src_row = -1;
-        h->rook_src_col = -1;
-        h->rook_dest_row = -1;
-        h->rook_dest_col = -1;
-        h->rook_moved_src = 0;
-        h->rook_moved_dest = 0;
-        h->counterB_before = 0;
-        h->counterB_after = 0;
-        h->counterW_after = 0;
-        h->counterW_before = 0;
-    }
-}
-
 void addToHistory(char original[3], char newPlace[3], char piece[4], char captured[4], int i, int j, int r, int c){
     if(historyPosition < historyCount){
         historyCount = historyPosition;
@@ -152,6 +99,76 @@ void addToHistory(char original[3], char newPlace[3], char piece[4], char captur
     historyCount++;
     historyPosition = historyCount;
     printf("Saved to History: %s to %s, Count: %d\n", h->original_place, h->new_place, historyCount);
+}
+
+void moveFromCoords(char from[3], char to[3]){
+    j = from[0] - 'A';
+    i = 8 - (from[1] - '0');
+    c = to[0] - 'A';
+    r = 8 - (to[1] - '0');
+    invalid_move = 0;
+    char piece[4];
+    memcpy(piece, board[i][j], 4);
+    
+    if(piece[0] == '.' || piece[0] == '-'){
+        invalid_move = 1;
+        return;
+    }
+    
+    if(isWhite(piece)) colour = 1;
+    else colour = 0;
+    
+    u8 piece_type = (u8)piece[2];
+    
+    if(piece_type == WhiteKing || piece_type == BlackKing) {
+        king(i, j, r, c, colour);
+    }
+    else if(piece_type == WhiteRook || piece_type == BlackRook) {
+        rook(i, j, r, c, colour);
+    }
+    else if(piece_type == WhitePawn || piece_type == BlackPawn) {
+        (colour == 1) ? white_pawn(i, j, r, c) : black_pawn(i, j, r, c);
+    }
+    else if(piece_type == WhiteKnight || piece_type == BlackKnight) {
+        knight(i, j, r, c, colour);
+    }
+    else if(piece_type == WhiteBishop || piece_type == BlackBishop) {
+        bishop(i, j, r, c, colour);
+    }
+    else if(piece_type == WhiteQueen || piece_type == BlackQueen) {
+        queen(i, j, r, c, colour);
+    }
+    
+    if(invalid_move == 0){
+        addToHistory(from, to, piece, board[r][c], i, j, r, c);
+    }
+}
+
+void historyInitialization(){
+    if(historyCount==0){
+        History*h = &history[historyCount];
+        memset(h->original_place, 0, sizeof(h->original_place));
+        memset(h->new_place, 0, sizeof(h->new_place));
+        memset(h->moved_piece, 0, sizeof(h->moved_piece));
+        memset(h->captured_piece, 0, sizeof(h->captured_piece));
+        h->moved_flag_src = 0;
+        h->moved_flag_dest = 0;
+        h->was_castling = 0;
+        h->was_en_passant = 0;
+        h->was_promotion = 0;
+        memset(h->original_pawn, 0, sizeof(h->original_pawn));
+        h->en_passant_col = -1;
+        h->rook_src_row = -1;
+        h->rook_src_col = -1;
+        h->rook_dest_row = -1;
+        h->rook_dest_col = -1;
+        h->rook_moved_src = 0;
+        h->rook_moved_dest = 0;
+        h->counterB_before = 0;
+        h->counterB_after = 0;
+        h->counterW_after = 0;
+        h->counterW_before = 0;
+    }
 }
 
 void markCastling(int rook_si, int rook_sj, int rook_di, int rook_dj){
@@ -342,7 +359,7 @@ int loadGame(char filename[255]){
     }
 
     fclose(file);
-    printf("Game loaded\n");
+    printf("Game loaded successfully!\n\n");
     return 1;
 }
 
