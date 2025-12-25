@@ -15,8 +15,8 @@ extern char whiteRook[4];
 extern char blackKing[4];
 extern char blackRook[4];
 extern int moved[8][8];
-extern int moved_pawnW[8][8];
-extern int moved_pawnB[8][8];
+extern int moved_pawnW[8];
+extern int moved_pawnB[8];
 extern int enPassantDone;
 extern int checking_stalemate;
 
@@ -312,8 +312,7 @@ void white_pawn(int i, int j, int r, int c){
                 if(board[r][c][0] == '-' || board[r][c][0] == '.'){
                     memcpy(board[r][c], board[i][j], 4);
                     change(i, j);
-                    moved_pawnW[r][c] = 2;
-                    moved_pawnW[i][j] = 0;
+                    moved_pawnW[c] = 2;
                     moved[r][c] = 1;
                     moved[i][j] = 0;
                 }
@@ -326,16 +325,12 @@ void white_pawn(int i, int j, int r, int c){
                 if(board[r][c][0] == '-'){
                     memcpy(board[r][c], board[i][j], 4);
                     memcpy(board[i][j], ".", 2);
-                    moved_pawnW[r][c] = 1;
-                    moved_pawnW[i][j] = 0;
                     moved[r][c] = 1;
                     moved[i][j] = 0;
                 }
                 else if(board[r][c][0] == '.'){
                     memcpy(board[r][c], board[i][j], 4);
                     memcpy(board[i][j], "-", 2);
-                    moved_pawnW[r][c] = 1;
-                    moved_pawnW[i][j] = 0;
                     moved[r][c] = 1;
                     moved[i][j] = 0;
                 }
@@ -362,16 +357,12 @@ void white_pawn(int i, int j, int r, int c){
                 if(board[r][c][0] == '-'){
                     memcpy(board[r][c], board[i][j], 4);
                     memcpy(board[i][j], ".", 2);
-                    moved_pawnW[r][c] = 1;
-                    moved_pawnW[i][j] = 0;
                     moved[r][c] = 1;
                     moved[i][j] = 0;
                 }
                 else if(board[r][c][0] == '.'){
                     memcpy(board[r][c], board[i][j], 4);
                     memcpy(board[i][j], "-", 2);
-                    moved_pawnW[r][c] = 1;
-                    moved_pawnW[i][j] = 0;
                     moved[r][c] = 1;
                     moved[i][j] = 0;
                 }
@@ -391,7 +382,7 @@ void white_pawn(int i, int j, int r, int c){
             else if(abs(c-j)==1 && i-r==1 && i==3 && (board[r][c][0] == '-' || board[r][c][0] == '.')){
                 possible_en_passant=1;
                 if(possible_en_passant){
-                    if((u8) board[i][c][2] == BlackPawn && moved_pawnB[i][c] == 2){
+                    if((u8) board[i][c][2] == BlackPawn && moved_pawnB[c] == 2){
                         memcpy(killed_arrB[counterB],board[i][c],4);
                         counterB++;
                         memcpy(board[r][c],board[i][j],4);
@@ -440,8 +431,7 @@ void black_pawn( int i, int j, int r, int c){
                 if(board[r][c][0] == '-' || board[r][c][0] == '.'){
                     memcpy(board[r][c], board[i][j], 4);
                     change(i, j);
-                    moved_pawnB[r][c] = 2;
-                    moved_pawnB[i][j] = 0;
+                    moved_pawnB[c] = 2;
                     moved[r][c] = 1;
                     moved[i][j] = 0;
                 }
@@ -454,16 +444,12 @@ void black_pawn( int i, int j, int r, int c){
                 if(board[r][c][0] == '-'){
                     memcpy(board[r][c], board[i][j], 4);
                     memcpy(board[i][j], ".", 2);
-                    moved_pawnB[r][c] = 1;
-                    moved_pawnB[i][j] = 0;
                     moved[r][c] = 1;
                     moved[i][j] = 0;
                 }
                 else if(board[r][c][0] == '.'){
                     memcpy(board[r][c], board[i][j], 4);
                     memcpy(board[i][j], "-", 2);
-                    moved_pawnB[r][c] = 1;
-                    moved_pawnB[i][j] = 0;
                     moved[r][c] = 1;
                     moved[i][j] = 0;
                 }
@@ -490,16 +476,12 @@ void black_pawn( int i, int j, int r, int c){
                 if(board[r][c][0] == '-'){
                     memcpy(board[r][c], board[i][j], 4);
                     memcpy(board[i][j], ".", 2);
-                    moved_pawnB[r][c] = 1;
-                    moved_pawnB[i][j] = 0;
                     moved[r][c] = 1;
                     moved[i][j] = 0;
                 }
                 else if(board[r][c][0] == '.'){
                     memcpy(board[r][c], board[i][j], 4);
                     memcpy(board[i][j], "-", 2);
-                    moved_pawnB[r][c] = 1;
-                    moved_pawnB[i][j] = 0;
                     moved[r][c] = 1;
                     moved[i][j] = 0;
                 }
@@ -519,7 +501,7 @@ void black_pawn( int i, int j, int r, int c){
             else if(abs(c-j)==1 && r-i==1 && i==4 && (board[r][c][0] == '-' || board[r][c][0] == '.')){
                 possible_en_passant=1;
                 if(possible_en_passant){
-                    if(board[i][c][2] == WhitePawn && moved_pawnW[i][c] == 2){
+                    if((u8) board[i][c][2] == WhitePawn && moved_pawnW[c] == 2){
                         memcpy(killed_arrW[counterW],board[i][c],4);
                         counterW++;
                         memcpy(board[r][c],board[i][j],4);

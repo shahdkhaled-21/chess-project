@@ -8,8 +8,8 @@
 extern char width_arr[8][2];
 extern char board[8][8][4];
 extern int historyPosition;
-int moved_pawnW[8][8];
-int moved_pawnB[8][8];
+int moved_pawnW[8];
+int moved_pawnB[8];
 
 int main() {
     historyInitialization();
@@ -46,15 +46,16 @@ int main() {
                 display(board, width_arr);
                 return_to_menu = 0;
                 while(checking_checkmate == 0 && return_to_menu == 0) {
-                    if(turns % 2 == 0) {
-                        memset(moved_pawnW, 0, sizeof(moved_pawnW));
-                    } else {
-                        memset(moved_pawnB, 0, sizeof(moved_pawnB));
-                    }
-                    return_to_menu = player(board, turns);
-                    if(return_to_menu == 0) {
+                    if(turns % 2 == 1) {
+                        player(board, turns);
                         display(board, width_arr);
                         turns++;
+                        memset(moved_pawnB, 0, sizeof(moved_pawnB));
+                    } else {
+                        player(board, turns);
+                        display(board, width_arr);
+                        turns++;
+                        memset(moved_pawnW, 0, sizeof(moved_pawnW));
                     }
                 }
                 if(checking_checkmate != 0) {

@@ -13,8 +13,8 @@ extern char whiteRook[4];
 extern char blackKing[4];
 extern char blackRook[4];
 extern int moved[8][8];
-extern int moved_pawnW[8][8];
-extern int moved_pawnB[8][8];
+extern int moved_pawnW[8];
+extern int moved_pawnB[8];
 
 int isWhite(char piece[4]);
 

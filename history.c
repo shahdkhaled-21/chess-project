@@ -202,7 +202,7 @@ void clearHistory(){
     historyPosition = 0;
 }
 
-void undo(){
+void undo(){ //under modification****************
     if(historyPosition <= 0){
         printf("No moves to undo!\n");
         return;
@@ -214,6 +214,12 @@ void undo(){
     int r = 8 - (h->new_place[1] - '0');
     int c = h -> new_place[0] - 'A';
     memcpy(board[i][j], h -> moved_piece, 4);
+    h -> counterB_after = h -> counterB_before; 
+    h -> counterW_after = h -> counterW_before;
+    counterB = h -> counterB_before;
+    counterW = h -> counterW_before;
+    strcpy(killed_arrB[counterB] , "\0");
+    strcpy(killed_arrW[counterW] , "\0");
     if(h -> captured_piece[0] == '-' || h->captured_piece[0] == '.'){
         memcpy(board[r][c], h -> captured_piece, 4);
     }

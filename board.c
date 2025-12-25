@@ -101,8 +101,8 @@ int player(char board[8][8][4], int turns){
     int history_added = 0;
     char promotion_letter;
     char input[20];
-    char original_place[10];
-    char new_place[10];
+    char original_place[3];
+    char new_place[3];
     int save_option;
     
     while(valid_place == 0 || valid_piece == 0 || valid_new == 0 || invalid_move == 1) {
@@ -174,7 +174,7 @@ int player(char board[8][8][4], int turns){
             printf("\nBlack's turn - Enter your move (e.g., A7 A5 or a7 a5): ");
         }
         if(fgets(input, sizeof(input), stdin) != NULL) {
-            if(sscanf(input, "%9s %9s", original_place, new_place) != 2) {
+            if(sscanf(input, "%2s %2s", original_place, new_place) != 2) {
                 printf("Invalid format! Please enter move as: FROM TO (e.g., A2 A4)\n");
                 continue;
             }
