@@ -19,7 +19,6 @@ int main() {
     int running = 1;
     int return_to_menu = 0;
     
-    // Welcome screen
     printf("===================================================\n");
     printf("           ♔ WELCOME TO CHESS ♚                   \n");
     printf("===================================================\n\n");
@@ -38,38 +37,42 @@ int main() {
         while(getchar() != '\n');
         switch(input) {
             case 1:
-                printf("\n===========================================\n");
-                printf("          STARTING NEW GAME                 \n");
-                printf("===========================================\n");
-                resetGame();
-                turns = 1;
-                display(board, width_arr);
-                return_to_menu = 0;
-                while(checking_checkmate == 0 && return_to_menu == 0) {
-                    if(turns % 2 == 1) {
-                        player(board, turns);
+            printf("\n===========================================\n");
+            printf("          STARTING NEW GAME                 \n");
+            printf("===========================================\n");
+            resetGame();
+            turns = 1;
+            display(board, width_arr);
+            return_to_menu = 0;
+            while(checking_checkmate == 0 && return_to_menu == 0) {
+                if(turns % 2 == 1) {
+                    return_to_menu = player(board, turns);
+                    if(return_to_menu == 0) {
                         display(board, width_arr);
                         turns++;
                         memset(moved_pawnB, 0, sizeof(moved_pawnB));
-                    } else {
-                        player(board, turns);
+                    }
+                } else {
+                    return_to_menu = player(board, turns);
+                    if(return_to_menu == 0) {
                         display(board, width_arr);
                         turns++;
                         memset(moved_pawnW, 0, sizeof(moved_pawnW));
                     }
                 }
-                if(checking_checkmate != 0) {
-                    printf("\n===========================================\n");
-                    printf("              GAME OVER!                   \n");
-                    printf("===========================================\n");
-                    if(turns % 2 == 0) {
-                        printf("              WHITE WINS!                  \n");
-                    } else {
-                        printf("              BLACK WINS!                  \n");
-                    }
-                    printf("===========================================\n");
+            }
+            if(checking_checkmate != 0) {
+                printf("\n===========================================\n");
+                printf("              GAME OVER!                   \n");
+                printf("===========================================\n");
+                if(turns % 2 == 0) {
+                    printf("              WHITE WINS!                  \n");
+                } else {
+                    printf("              BLACK WINS!                  \n");
                 }
-                break;
+                printf("===========================================\n");
+            }
+            break;
             case 2:
                 displaySavedGames();
                 getFilename(fileName, maxLen);

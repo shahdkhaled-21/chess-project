@@ -139,7 +139,7 @@ int player(char board[8][8][4], int turns){
                 return 0;
                 
             case 4:
-                printf("Enter a filename for your save: ");
+                printf("Enter a filename for your save(with .txt at the end): ");
                 fgets(filename, 255, stdin);
                 filename[strcspn(filename, "\n")] = 0; // Remove newline
                 saveGame(filename);
@@ -217,16 +217,24 @@ int player(char board[8][8][4], int turns){
         }
         if((u8)board[i][j][2] == WhiteKing || (u8)board[i][j][2] == BlackKing) {
             if(i - r == 0 && abs(j - c) == 2) {
+                char king_piece[4];
+                memcpy(king_piece, board[i][j], 4);
                 castling(i, j, r, c);
-                addToHistory(original_place, new_place, board[i][j], board[r][c], i, j, r, c);
-                markCastling(i, j, r, c);
-                history_added = 1;
+                if(invalid_move == 0) {
+                    char empty[4] = "-";
+                    addToHistory(original_place, new_place, king_piece, empty, i, j, r, c);
+                    history_added = 1;
+                }
+                if(invalid_move == 1) {
+                    printf("Invalid castling move!\n");
+                    continue;
+                }
             } else {
                 king(i, j, r, c, colour);
-            }
-            if(invalid_move == 1) {
-                printf("Invalid king move!\n");
-                continue;
+                if(invalid_move == 1) {
+                    printf("Invalid king move!\n");
+                    continue;
+                }
             }
         }
         else if((u8)board[i][j][2] == WhiteQueen || (u8)board[i][j][2] == BlackQueen) {

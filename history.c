@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "moves.h"
+#include  "specialMoves.h"
 
 typedef unsigned char u8;
 
@@ -53,6 +54,7 @@ extern int counterB;
 extern int invalid_move;
 extern char killed_arrW[15][4];
 extern char killed_arrB[15][4];
+extern int enPassantDone;
 
 History history[6000] = {};
 int historyCount = 0;
@@ -94,11 +96,37 @@ void addToHistory(char original[3], char newPlace[3], char piece[4], char captur
     h -> rook_dest_col = -1;
     h -> rook_moved_dest = 0;
     h -> rook_moved_src = 0;
-    h -> counterB_after = 0;
-    h -> counterW_after = 0;
     historyCount++;
     historyPosition = historyCount;
+    h -> counterW_after = counterW;
+    h -> counterB_after = counterB;
     printf("Saved to History: %s to %s, Count: %d\n", h->original_place, h->new_place, historyCount);
+}
+
+void markCastling(int rook_si, int rook_sj, int rook_di, int rook_dj){
+    if(historyCount == 0) return;
+    History *h = &history[historyCount - 1];
+    h -> was_castling = 1;
+    h -> rook_src_row = rook_si;
+    h -> rook_src_col = rook_sj;
+    h -> rook_dest_row = rook_di;
+    h -> rook_dest_col = rook_dj;
+    h -> rook_moved_src  = moved[rook_si][rook_sj];
+    h -> rook_moved_dest = moved[rook_di][rook_dj];
+}
+
+void markEnPassant(int captured_col){
+    if(historyCount == 0) return;
+    History *h = &history[historyCount - 1];
+    h -> was_en_passant = 1;
+    h -> en_passant_col = captured_col;
+}
+
+void markPromotion(char original_pawn[4]){
+    if(historyCount == 0) return;
+    History *h = &history[historyCount - 1];
+    h -> was_promotion = 1;
+    memcpy(h -> original_pawn, original_pawn, 4);
 }
 
 void moveFromCoords(char from[3], char to[3]){
@@ -121,13 +149,27 @@ void moveFromCoords(char from[3], char to[3]){
     u8 piece_type = (u8)piece[2];
     
     if(piece_type == WhiteKing || piece_type == BlackKing) {
-        king(i, j, r, c, colour);
+        if(i == r && abs(j - c) == 2) {
+            castling(i, j, r, c);
+            if(invalid_move == 0) {
+                addToHistory(from, to, piece, board[r][c], i, j, r, c);
+            }
+            return;
+        }
+        else {
+            king(i, j, r, c, colour);
+        }
     }
     else if(piece_type == WhiteRook || piece_type == BlackRook) {
         rook(i, j, r, c, colour);
     }
     else if(piece_type == WhitePawn || piece_type == BlackPawn) {
         (colour == 1) ? white_pawn(i, j, r, c) : black_pawn(i, j, r, c);
+        if(invalid_move == 0 && enPassantDone == 1) {
+            addToHistory(from, to, piece, board[r][c], i, j, r, c);
+            markEnPassant(c);
+            return;
+        }
     }
     else if(piece_type == WhiteKnight || piece_type == BlackKnight) {
         knight(i, j, r, c, colour);
@@ -169,32 +211,6 @@ void historyInitialization(){
         h->counterW_after = 0;
         h->counterW_before = 0;
     }
-}
-
-void markCastling(int rook_si, int rook_sj, int rook_di, int rook_dj){
-    if(historyCount == 0) return;
-    History *h = &history[historyCount - 1];
-    h -> was_castling = 1;
-    h -> rook_src_row = rook_si;
-    h -> rook_src_col = rook_sj;
-    h -> rook_dest_row = rook_di;
-    h -> rook_dest_col = rook_dj;
-    h -> rook_moved_src  = moved[rook_si][rook_sj];
-    h -> rook_moved_dest = moved[rook_di][rook_dj];
-}
-
-void markEnPassant(int captured_col){
-    if(historyCount == 0) return;
-    History *h = &history[historyCount - 1];
-    h -> was_en_passant = 1;
-    h -> en_passant_col = captured_col;
-}
-
-void markPromotion(char original_pawn[4]){
-    if(historyCount == 0) return;
-    History *h = &history[historyCount - 1];
-    h -> was_promotion = 1;
-    memcpy(h -> original_pawn, original_pawn, 4);
 }
 
 void clearHistory(){

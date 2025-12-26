@@ -15,7 +15,7 @@ board.o : board.c moves.h specialMoves.h history.h
 history: history.o moves.o
 		gcc history.o moves.o -o history
 
-history.o: history.c moves.h
+history.o: history.c moves.h specialMoves.h
 		gcc -c history.c
 
 specialMoves:specialMoves.o moves.o
