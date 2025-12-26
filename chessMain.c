@@ -18,6 +18,7 @@ int main() {
     int maxLen = 255;
     int running = 1;
     int return_to_menu = 0;
+    int colour;
     
     printf("===================================================\n");
     printf("           ♔ WELCOME TO CHESS ♚                   \n");
@@ -44,7 +45,8 @@ int main() {
             turns = 1;
             display(board, width_arr);
             return_to_menu = 0;
-            while(checking_checkmate == 0 && return_to_menu == 0) {
+            while(isCheckmate(colour) != 1 || isStalemate(colour) != 1 || return_to_menu == 0) {
+                colour = turns % 2;
                 if(turns % 2 == 1) {
                     return_to_menu = player(board, turns);
                     if(return_to_menu == 0) {
@@ -61,7 +63,7 @@ int main() {
                     }
                 }
             }
-            if(checking_checkmate != 0) {
+            if(isCheckmate(colour)== 1 || isStalemate(colour)== 1) {
                 printf("\n===========================================\n");
                 printf("              GAME OVER!                   \n");
                 printf("===========================================\n");

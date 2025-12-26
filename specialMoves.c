@@ -50,7 +50,7 @@ int isSquareAttacked(int r, int c, int myCurruntColour){
             // Skip empty squares
             if(board[i][j][0] == '.' || board[i][j][0] == '-') continue;
             
-            if(piece_colour(board[i][j]) != myCurruntColour){
+            if(piece_colour(board[i][j]) != myCurruntColour && ((u8) board[i][j][2] == WhiteKnight ||(u8) board[i][j][2] == BlackKnight)){
                 if((abs(r - i) == 1 && abs(c - j) == 2) || (abs(r - i) == 2 && abs(c - j) == 1)){
                     return 1;
                 }
@@ -63,7 +63,7 @@ int isSquareAttacked(int r, int c, int myCurruntColour){
             // Skip empty squares
             if(board[i][j][0] == '.' || board[i][j][0] == '-') continue;
             
-            if(piece_colour(board[i][j]) != myCurruntColour){
+            if(piece_colour(board[i][j]) != myCurruntColour && ((u8) board[i][j][2] == WhiteKing || (u8) board[i][j][2] == BlackKing)){
                 if(abs(r - i) <= 1 && abs(c - j) <= 1){
                     return 1;
                 }
@@ -76,7 +76,7 @@ int isSquareAttacked(int r, int c, int myCurruntColour){
             // Skip empty squares
             if(board[i][j][0] == '.' || board[i][j][0] == '-') continue;
             
-            if(piece_colour(board[i][j]) != myCurruntColour){
+            if(piece_colour(board[i][j]) != myCurruntColour && ((u8) board[i][j][2] == WhitePawn || (u8) board[i][j][2] == BlackPawn)){
                 if((r - i == 1 && abs(c - j) == 1) || (r - i == -1 && abs(c - j) == 1)){
                     return 1;
                 }
@@ -89,7 +89,7 @@ int isSquareAttacked(int r, int c, int myCurruntColour){
             // Skip empty squares
             if(board[i][j][0] == '.' || board[i][j][0] == '-') continue;
             
-            if(piece_colour(board[i][j]) != myCurruntColour){
+            if(piece_colour(board[i][j]) != myCurruntColour && ((u8) board[i][j][2] == WhiteRook || (u8) board[i][j][2] == WhiteQueen || (u8) board[i][j][2] == BlackRook || (u8) board[i][j][2] == BlackQueen)){
                 if(i == r){
                     int clear = 1;
                     int step = (j < c) ? 1 : -1;
@@ -121,7 +121,7 @@ int isSquareAttacked(int r, int c, int myCurruntColour){
             // Skip empty squares
             if(board[i][j][0] == '.' || board[i][j][0] == '-') continue;
             
-            if(piece_colour(board[i][j]) != myCurruntColour){
+            if(piece_colour(board[i][j]) != myCurruntColour && ((u8) board[i][j][2] == WhiteBishop || (u8) board[i][j][2] == WhiteQueen || (u8) board[i][j][2] == BlackBishop || (u8) board[i][j][2] == BlackQueen)){
                 if(abs(r - i) == abs(c - j)){
                     int clear = 1;
                     int dr = (r > i) ? 1 : -1;
@@ -232,7 +232,7 @@ int isCheckmate(int colour){
     char king_piece[4];
     int king_i = -1; int king_j = -1;
 
-    if(colour == 0) memcpy(king_piece, whiteKing, 4);
+    if(colour == 1) memcpy(king_piece, whiteKing, 4);
     else memcpy(king_piece, blackKing, 4);
     
     for(i = 0; i < 8; i++){
@@ -377,8 +377,6 @@ int isStalemate(int colour){
     checking_stalemate = 0;
     return 1;
 }
-
-int isDeadPosition(){}
 
 int must_promote(int i, int j, int r, int c){
     if((u8) board[i][j][2] == BlackPawn && i==6 && r-i==1 && c==j &&  (board[r][c][0] == '-' || board[r][c][0] == '.')){
