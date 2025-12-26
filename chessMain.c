@@ -15,15 +15,12 @@ int main() {
     historyInitialization();
     int input, turns = 1;
     char fileName[255];
-    int maxLen = 255;
     int running = 1;
     int return_to_menu = 0;
     int colour;
-    
     printf("===================================================\n");
     printf("           ♔ WELCOME TO CHESS ♚                   \n");
     printf("===================================================\n\n");
-    
     while(running) {
         printf("===========================================\n");
         printf("              MAIN MENU                    \n");
@@ -38,46 +35,50 @@ int main() {
         while(getchar() != '\n');
         switch(input) {
             case 1:
-            printf("\n===========================================\n");
-            printf("          STARTING NEW GAME                 \n");
-            printf("===========================================\n");
-            resetGame();
-            turns = 1;
-            display(board, width_arr);
-            return_to_menu = 0;
-            while(isCheckmate(colour) != 1 || isStalemate(colour) != 1 || return_to_menu == 0) {
-                colour = turns % 2;
-                if(turns % 2 == 1) {
-                    return_to_menu = player(board, turns);
-                    if(return_to_menu == 0) {
-                        display(board, width_arr);
-                        turns++;
-                        memset(moved_pawnB, 0, sizeof(moved_pawnB));
-                    }
-                } else {
-                    return_to_menu = player(board, turns);
-                    if(return_to_menu == 0) {
-                        display(board, width_arr);
-                        turns++;
-                        memset(moved_pawnW, 0, sizeof(moved_pawnW));
-                    }
-                }
-            }
-            if(isCheckmate(colour)== 1 || isStalemate(colour)== 1) {
                 printf("\n===========================================\n");
-                printf("              GAME OVER!                   \n");
+                printf("          STARTING NEW GAME                 \n");
                 printf("===========================================\n");
-                if(turns % 2 == 0) {
-                    printf("              WHITE WINS!                  \n");
-                } else {
-                    printf("              BLACK WINS!                  \n");
+                resetGame();
+                turns = 1;
+                display(board, width_arr);
+                return_to_menu = 0;
+                while(return_to_menu == 0) {
+                    colour = (turns % 2 == 1) ? 1 : 0;
+                    if(isCheckmate(colour) == 1) {
+                        printf("\n===========================================\n");
+                        printf("              CHECKMATE!                   \n");
+                        printf("===========================================\n");
+                        if(colour == 1) {
+                            printf("              BLACK WINS!                  \n");
+                        } else {
+                            printf("              WHITE WINS!                  \n");
+                        }
+                        printf("===========================================\n");
+                        break;
+                    }
+                    if(isStalemate(colour) == 1) {
+                        printf("\n===========================================\n");
+                        printf("              STALEMATE!                   \n");
+                        printf("===========================================\n");
+                        printf("              IT'S A DRAW!                 \n");
+                        printf("===========================================\n");
+                        break;
+                    }
+                    return_to_menu = player(board, turns);
+                    if(return_to_menu == 0) {
+                        display(board, width_arr);
+                        turns++;
+                        if(turns % 2 == 1) {
+                            memset(moved_pawnB, 0, sizeof(moved_pawnB));
+                        } else {
+                            memset(moved_pawnW, 0, sizeof(moved_pawnW));
+                        }
+                    }
                 }
-                printf("===========================================\n");
-            }
-            break;
+                break;
             case 2:
                 displaySavedGames();
-                getFilename(fileName, maxLen);
+                getFilename(fileName);
                 if(fileName[0] == '0') {
                     printf("Load cancelled.\n");
                     continue;
@@ -86,7 +87,28 @@ int main() {
                     turns = historyPosition + 1;
                     display(board, width_arr);
                     return_to_menu = 0;
-                    while(checking_checkmate == 0 && return_to_menu == 0) {
+                    while(return_to_menu == 0) {
+                        colour = (turns % 2 == 1) ? 1 : 0;
+                        if(isCheckmate(colour) == 1) {
+                            printf("\n===========================================\n");
+                            printf("              CHECKMATE!                   \n");
+                            printf("===========================================\n");
+                            if(colour == 1) {
+                                printf("              BLACK WINS!                  \n");
+                            } else {
+                                printf("              WHITE WINS!                  \n");
+                            }
+                            printf("===========================================\n");
+                            break;
+                        }
+                        if(isStalemate(colour) == 1) {
+                            printf("\n===========================================\n");
+                            printf("              STALEMATE!                   \n");
+                            printf("===========================================\n");
+                            printf("              IT'S A DRAW!                 \n");
+                            printf("===========================================\n");
+                            break;
+                        }
                         if(turns % 2 == 0) {
                             memset(moved_pawnW, 0, sizeof(moved_pawnW));
                         } else {
@@ -98,17 +120,6 @@ int main() {
                             turns++;
                         }
                     }
-                    if(checking_checkmate != 0) {
-                        printf("\n===========================================\n");
-                        printf("              GAME OVER!                   \n");
-                        printf("===========================================\n");
-                        if(turns % 2 == 0) {
-                            printf("              WHITE WINS!                  \n");
-                        } else {
-                            printf("              BLACK WINS!                  \n");
-                        }
-                        printf("===========================================\n");
-                    }
                 } else {
                     printf("Failed to load game.\n");
                 }
@@ -119,7 +130,6 @@ int main() {
                 printf("               Goodbye!                    \n");
                 printf("===========================================\n");
                 return 0;
-                
             default:
                 printf("Invalid option! Please choose 1, 2, or 3.\n");
                 break;

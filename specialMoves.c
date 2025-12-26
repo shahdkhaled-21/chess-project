@@ -44,10 +44,8 @@ int haveMovedAt(int r, int c){
 
 int isSquareAttacked(int r, int c, int myCurruntColour){
     int i, j;
-    // checking knight attacks
     for(i = 0; i < 8; i++){
         for(j = 0; j < 8; j++){
-            // Skip empty squares
             if(board[i][j][0] == '.' || board[i][j][0] == '-') continue;
             
             if(piece_colour(board[i][j]) != myCurruntColour && ((u8) board[i][j][2] == WhiteKnight ||(u8) board[i][j][2] == BlackKnight)){
@@ -57,10 +55,8 @@ int isSquareAttacked(int r, int c, int myCurruntColour){
             }
         }
     }
-    // checking king attacks
     for(i = 0; i < 8; i++){
         for(j = 0; j < 8; j++){
-            // Skip empty squares
             if(board[i][j][0] == '.' || board[i][j][0] == '-') continue;
             
             if(piece_colour(board[i][j]) != myCurruntColour && ((u8) board[i][j][2] == WhiteKing || (u8) board[i][j][2] == BlackKing)){
@@ -70,23 +66,26 @@ int isSquareAttacked(int r, int c, int myCurruntColour){
             }
         }
     }
-    // checking pawn attacks
     for(i = 0; i < 8; i++){
         for(j = 0; j < 8; j++){
-            // Skip empty squares
             if(board[i][j][0] == '.' || board[i][j][0] == '-') continue;
             
             if(piece_colour(board[i][j]) != myCurruntColour && ((u8) board[i][j][2] == WhitePawn || (u8) board[i][j][2] == BlackPawn)){
-                if((r - i == 1 && abs(c - j) == 1) || (r - i == -1 && abs(c - j) == 1)){
-                    return 1;
+                if(piece_colour(board[i][j]) != myCurruntColour && ((u8) board[i][j][2] == WhitePawn)){
+                        if(i - r == 1 && abs(c - j) == 1){
+                            return 1;
+                        }
+                    }
+                if(piece_colour(board[i][j]) != myCurruntColour && ((u8) board[i][j][2] == BlackPawn)){
+                        if(r - i == 1 && abs(c - j) == 1){
+                            return 1;
+                        }
+                    }
                 }
             }
         }
-    }
-    // checking rook & queen attacks
     for(i = 0; i < 8; i++){
         for(j = 0; j < 8; j++){
-            // Skip empty squares
             if(board[i][j][0] == '.' || board[i][j][0] == '-') continue;
             
             if(piece_colour(board[i][j]) != myCurruntColour && ((u8) board[i][j][2] == WhiteRook || (u8) board[i][j][2] == WhiteQueen || (u8) board[i][j][2] == BlackRook || (u8) board[i][j][2] == BlackQueen)){
@@ -115,10 +114,8 @@ int isSquareAttacked(int r, int c, int myCurruntColour){
             }
         }
     }
-    // checking bishop & queen attacks
     for(i = 0; i < 8; i++){
         for(j = 0; j < 8; j++){
-            // Skip empty squares
             if(board[i][j][0] == '.' || board[i][j][0] == '-') continue;
             
             if(piece_colour(board[i][j]) != myCurruntColour && ((u8) board[i][j][2] == WhiteBishop || (u8) board[i][j][2] == WhiteQueen || (u8) board[i][j][2] == BlackBishop || (u8) board[i][j][2] == BlackQueen)){
@@ -149,7 +146,6 @@ void castling(int i, int j, int r, int c){
     
     if((u8) board[i][j][2] == WhiteKing){
         if(haveMovedAt(7,4) == 0){
-            // White queenside castling
             if(r == 7 && c == 2 && strcmp(board[7][0], whiteRook) == 0 && haveMovedAt(7,0) == 0 && 
             (board[7][3][0] == '-' || board[7][3][0] == '.') && 
             (board[7][2][0] == '.' || board[7][2][0] == '-') && 
@@ -164,7 +160,6 @@ void castling(int i, int j, int r, int c){
                 markCastling(7, 0, 7, 3);
                 invalid_move = 0;
             }
-            // White kingside castling - THIS WAS MISSING!
             else if(r == 7 && c == 6 && strcmp(board[7][7], whiteRook) == 0 && haveMovedAt(7,7) == 0 && 
             (board[7][5][0] == '.' || board[7][5][0] == '-') && 
             (board[7][6][0] == '-' || board[7][6][0] == '.') &&
@@ -182,7 +177,6 @@ void castling(int i, int j, int r, int c){
     }
     else if((u8)board[i][j][2] == BlackKing){
         if(haveMovedAt(0,4) == 0){
-            // Black kingside castling
             if(r == 0 && c == 6 && strcmp(board[0][7], blackRook) == 0 && haveMovedAt(0,7) == 0 && 
             (board[0][5][0] == '.' || board[0][5][0] == '-') && 
             (board[0][6][0] == '-' || board[0][6][0] == '.') &&
@@ -196,7 +190,6 @@ void castling(int i, int j, int r, int c){
                 markCastling(0, 7, 0, 5);
                 invalid_move = 0;
             }
-            // Black queenside castling
             else if(r == 0 && c == 2 && strcmp(board[0][0], blackRook) == 0 && haveMovedAt(0,0) == 0 && 
             (board[0][3][0] == '.' || board[0][3][0] == '-') && 
             (board[0][2][0] == '-' || board[0][2][0] == '.') &&
@@ -286,8 +279,8 @@ int isCheckmate(int colour){
                             escaped = 1;
                         }
                     }
-                    memcmp(board[i][j], save_src, 4);
-                    memcmp(board[r][c], save_dest, 4);
+                    memcpy(board[i][j], save_src, 4);
+                    memcpy(board[r][c], save_dest, 4);
                     moved[i][j] = save_moved_src;
                     moved[r][c] = save_moved_dest;
                     if(escaped){
@@ -307,8 +300,8 @@ int isStalemate(int colour){
     char king_piece[4];
     int king_i = -1; int king_j = -1;
 
-    if(colour == 0) memcpy(king_piece, whiteKing, 4);
-    else memcpy(king_piece, blackKing, 4); 
+    if(colour == 1) memcpy(king_piece, whiteKing, 4);
+    else memcpy(king_piece, blackKing, 4);
 
     for(i = 0; i < 8; i++){
         for(j = 0; j < 8; j++){

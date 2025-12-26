@@ -218,51 +218,65 @@ void clearHistory(){
     historyPosition = 0;
 }
 
-void undo(){ //under modification****************
+void undo(){ 
     if(historyPosition <= 0){
         printf("No moves to undo!\n");
         return;
     }
-    historyPosition--;
-    History *h = &history[historyPosition];
-    int i = 8 - (h -> original_place[1] - '0');
-    int j = h -> original_place[0] - 'A';
-    int r = 8 - (h->new_place[1] - '0');
-    int c = h -> new_place[0] - 'A';
-    memcpy(board[i][j], h -> moved_piece, 4);
-    h -> counterB_after = h -> counterB_before; 
-    h -> counterW_after = h -> counterW_before;
-    counterB = h -> counterB_before;
-    counterW = h -> counterW_before;
-    strcpy(killed_arrB[counterB] , "\0");
-    strcpy(killed_arrW[counterW] , "\0");
-    if(h -> captured_piece[0] == '-' || h->captured_piece[0] == '.'){
-        memcpy(board[r][c], h -> captured_piece, 4);
-    }
-    else{
-        memcpy(board[r][c], h -> captured_piece, 4);
-    }
-    moved[i][j] = h -> moved_flag_src;
-    moved[r][c] = h -> moved_flag_dest;
-    counterW = h -> counterW_before;
-    counterB = h -> counterB_before;
-    if(h -> was_castling){
-        if(h -> rook_src_row >= 0){
-            memcpy(board[h -> rook_src_row][h -> rook_src_col], board[h -> rook_dest_row][h -> rook_dest_col], 4);
-            change(h -> rook_dest_row, h -> rook_dest_col);
-            moved[h -> rook_src_row][h -> rook_src_col] = h -> rook_moved_src;
-            moved[h -> rook_dest_row][h -> rook_dest_col] = h -> rook_moved_dest;
-
+    int moves_to_undo = (historyPosition >= 2) ? 2 : historyPosition;
+    for(int undo_count = 0; undo_count < moves_to_undo; undo_count++) {
+        if(historyPosition <= 0) break;
+        historyPosition--;
+        History *h = &history[historyPosition];
+        int src_i = 8 - (h->original_place[1] - '0');
+        int src_j = h->original_place[0] - 'A';
+        int dest_i = 8 - (h->new_place[1] - '0');
+        int dest_j = h->new_place[0] - 'A';
+        if(h->counterW_after > h->counterW_before) {
+            memset(killed_arrW[counterW - 1], 0, 4);
         }
+        if(h->counterB_after > h->counterB_before) {
+            memset(killed_arrB[counterB - 1], 0, 4);
+        }
+        counterW = h->counterW_before;
+        counterB = h->counterB_before;
+        if(h->was_en_passant) {
+            int captured_pawn_row = (isWhite(h->moved_piece)) ? dest_i + 1 : dest_i - 1;
+            memcpy(board[captured_pawn_row][h->en_passant_col], h->captured_piece, 4);
+            memcpy(board[src_i][src_j], h->moved_piece, 4);
+            change(dest_i, dest_j);
+            moved[src_i][src_j] = h->moved_flag_src;
+            moved[dest_i][dest_j] = h->moved_flag_dest;
+            continue;
+        }
+        if(h->was_castling) {
+            memcpy(board[src_i][src_j], h->moved_piece, 4);
+            change(dest_i, dest_j);
+            if(h->rook_src_row >= 0) {
+                memcpy(board[h->rook_src_row][h->rook_src_col], 
+                       board[h->rook_dest_row][h->rook_dest_col], 4);
+                change(h->rook_dest_row, h->rook_dest_col);
+                
+                moved[h->rook_src_row][h->rook_src_col] = h->rook_moved_src;
+                moved[h->rook_dest_row][h->rook_dest_col] = h->rook_moved_dest;
+            }
+            moved[src_i][src_j] = h->moved_flag_src;
+            moved[dest_i][dest_j] = h->moved_flag_dest;
+            continue;
+        }
+        if(h->was_promotion) {
+            memcpy(board[src_i][src_j], h->original_pawn, 4);
+            memcpy(board[dest_i][dest_j], h->captured_piece, 4);
+            moved[src_i][src_j] = h->moved_flag_src;
+            moved[dest_i][dest_j] = h->moved_flag_dest;
+            continue;
+        }
+        memcpy(board[src_i][src_j], h->moved_piece, 4);
+        memcpy(board[dest_i][dest_j], h->captured_piece, 4);
+        moved[src_i][src_j] = h->moved_flag_src;
+        moved[dest_i][dest_j] = h->moved_flag_dest;
     }
-    if(h -> was_en_passant){
-        int pawn_row = (isWhite(h -> moved_piece)) ? r + 1 : r - 1;
-        memcpy(board[pawn_row][h -> en_passant_col], h -> captured_piece, 4);
-        change(r, c);
-    }
-    if(h->was_promotion){
-        memcpy(board[i][j], h -> original_pawn, 4);
-    }
+    printf("Undone %d move(s)\n", moves_to_undo);
 }
 
 void redo(){
@@ -270,50 +284,80 @@ void redo(){
         printf("No moves to redo!\n");
         return;
     }
-    History *h = &history[historyPosition];
-    int i = 8 - (h -> original_place[1] - '0');
-    int j = h -> original_place[0] - 'A';
-    int r = 8 - (h -> new_place[1] - '0');
-    int c = h -> new_place[0] - 'A';
-    memcpy(board[r][c], h -> moved_piece, 4);
-    if(h -> captured_piece[0] != '-' && h -> captured_piece[0] != '.'){
-        if(isWhite(h -> captured_piece)){
-            memcpy(killed_arrW[counterW], h -> captured_piece, 4);
-            counterW++;
+    int moves_to_redo = (historyPosition + 2 <= historyCount) ? 2 : (historyCount - historyPosition);
+    for(int redo_count = 0; redo_count < moves_to_redo; redo_count++) {
+        if(historyPosition >= historyCount) break;
+        History *h = &history[historyPosition];
+        int src_i = 8 - (h->original_place[1] - '0');
+        int src_j = h->original_place[0] - 'A';
+        int dest_i = 8 - (h->new_place[1] - '0');
+        int dest_j = h->new_place[0] - 'A';
+        if(h->was_en_passant) {
+            memcpy(board[dest_i][dest_j], h->moved_piece, 4);
+            change(src_i, src_j);
+            int captured_pawn_row = (isWhite(h->moved_piece)) ? dest_i + 1 : dest_i - 1;
+            change(captured_pawn_row, h->en_passant_col);
+            moved[dest_i][dest_j] = 1;
+            moved[src_i][src_j] = 0;
+            counterW = h->counterW_after;
+            counterB = h->counterB_after;
+            if(isWhite(h->captured_piece)) {
+                memcpy(killed_arrW[counterW - 1], h->captured_piece, 4);
+            } else {
+                memcpy(killed_arrB[counterB - 1], h->captured_piece, 4);
+            }
+            historyPosition++;
+            continue;
         }
-        else{
-            memcpy(killed_arrB[counterB], h -> captured_piece, 4);
-            counterB++;
+        if(h->was_castling) {
+            memcpy(board[dest_i][dest_j], h->moved_piece, 4);
+            change(src_i, src_j);
+            if(h->rook_dest_row >= 0) {
+                memcpy(board[h->rook_dest_row][h->rook_dest_col],
+                       board[h->rook_src_row][h->rook_src_col], 4);
+                change(h->rook_src_row, h->rook_src_col);
+                moved[h->rook_dest_row][h->rook_dest_col] = 1;
+            }
+            moved[dest_i][dest_j] = 1;
+            moved[src_i][src_j] = 0;
+            counterW = h->counterW_after;
+            counterB = h->counterB_after;
+            historyPosition++;
+            continue;
         }
+        if(h->was_promotion) {
+            memcpy(board[dest_i][dest_j], h->moved_piece, 4);
+            change(src_i, src_j);
+            moved[dest_i][dest_j] = 1;
+            moved[src_i][src_j] = 0;
+            counterW = h->counterW_after;
+            counterB = h->counterB_after;
+            if(h->captured_piece[0] != '-' && h->captured_piece[0] != '.') {
+                if(isWhite(h->captured_piece)) {
+                    memcpy(killed_arrW[counterW - 1], h->captured_piece, 4);
+                } else {
+                    memcpy(killed_arrB[counterB - 1], h->captured_piece, 4);
+                }
+            }
+            historyPosition++;
+            continue;
+        }
+        memcpy(board[dest_i][dest_j], h->moved_piece, 4);
+        change(src_i, src_j);
+        moved[dest_i][dest_j] = 1;
+        moved[src_i][src_j] = 0;
+        counterW = h->counterW_after;
+        counterB = h->counterB_after;
+        if(h->captured_piece[0] != '-' && h->captured_piece[0] != '.') {
+            if(isWhite(h->captured_piece)) {
+                memcpy(killed_arrW[counterW - 1], h->captured_piece, 4);
+            } else {
+                memcpy(killed_arrB[counterB - 1], h->captured_piece, 4);
+            }
+        }
+        historyPosition++;
     }
-    change(i, j);
-    moved[r][c] = 1;
-    moved[i][j] = 0;
-    if(h -> was_castling){
-        if(h -> rook_dest_row >= 0){
-            memcpy(board[h -> rook_dest_row][h -> rook_dest_col], board[h -> rook_src_row][h -> rook_src_col], 4);
-            change(h -> rook_src_row, h -> rook_src_col);
-            moved[h -> rook_dest_row][h -> rook_dest_col] = 1;
-        }
-    }
-    if(h -> was_en_passant){
-        int pawn_row = (isWhite(h -> moved_piece)) ? r + 1 : r - 1;
-        change(pawn_row, h -> en_passant_col);
-        if(isWhite(h -> captured_piece)){
-            memcpy(killed_arrW[counterW], h -> captured_piece, 4);
-            counterW++;
-        }
-        else{
-            memcpy(killed_arrB[counterB], h -> captured_piece, 4);
-            counterB++;
-        }
-    }
-    if(h->was_promotion){
-    memcpy(board[r][c], h->moved_piece, 4);
-    }
-    counterW = h -> counterW_after;
-    counterB = h -> counterB_after;
-    historyPosition++;
+    printf("Redone %d move(s)\n", moves_to_redo);
 }
 
 void resetGame(){
@@ -398,7 +442,7 @@ void displaySavedGames(){
     printf("\n-------------------\n\n");
 }
 
-void getFilename(char filename[255], int maxLen) {
+void getFilename(char filename[255]) {
     printf("Enter filename (without .txt) or 0 to cancel: ");
     scanf("%255s", filename);
     if(filename[0] != '0'){

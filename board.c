@@ -49,8 +49,8 @@ char promotion_piece_letters[4] = {'Q','K','B','R'};
 
 int moved[8][8] = {0};
 
-char killed_arrW[15][4];
-char killed_arrB[15][4];
+char killed_arrW[15][4] = {{0}};
+char killed_arrB[15][4] = {{0}};
 
 int i, j, r, c;
 int counterW = 0;
@@ -74,7 +74,7 @@ char width_arr[8][2]      =   {"A" , "B" , "C" , "D" , "E" , "F" , "G" , "H"};
 
 char notation[8][8][3]    =  {{"A8", "B8", "C8", "D8", "E8", "F8", "G8", "H8"},
                               {"A7", "B7", "C7", "D7", "E7", "F7", "G7", "H7"}, 
-                              {"A6", "B6", "C6", "D6", "E6", "F6", "G7", "H6"},
+                              {"A6", "B6", "C6", "D6", "E6", "F6", "G6", "H6"},
                               {"A5", "B5", "C5", "D5", "E5", "F5", "G5", "H5"}, 
                               {"A4", "B4", "C4", "D4", "E4", "F4", "G4", "H4"},
                               {"A3", "B3", "C3", "D3", "E3", "F3", "G3", "H3"},
@@ -111,6 +111,7 @@ int player(char board[8][8][4], int turns){
         valid_new = 0;
         invalid_move = 0;
         history_added = 0;
+        enPassantDone = 0;
         printf("======================================\n");
         if(turns % 2 == 1) {
             printf("        WHITE'S TURN\n");
@@ -141,7 +142,7 @@ int player(char board[8][8][4], int turns){
             case 4:
                 printf("Enter a filename for your save(with .txt at the end): ");
                 fgets(filename, 255, stdin);
-                filename[strcspn(filename, "\n")] = 0; // Remove newline
+                filename[strcspn(filename, "\n")] = 0; 
                 saveGame(filename);
                 continue;
                 
@@ -157,7 +158,7 @@ int player(char board[8][8][4], int turns){
                 }
                 while(getchar() != '\n');
                 if(save_option == 1) {
-                    printf("Enter a filename for your save: ");
+                    printf("Enter a filename for your save(with .txt at the end): ");
                     fgets(filename, 255, stdin);
                     filename[strcspn(filename, "\n")] = 0;
                     saveGame(filename);
@@ -215,14 +216,33 @@ int player(char board[8][8][4], int turns){
             printf("Invalid destination! Use format like A4, B6, etc.\n");
             continue;
         }
+
+        char saved_board[8][8][4];
+        int saved_moved[8][8];
+        int saved_counterW = counterW;
+        int saved_counterB = counterB;
+        char saved_killed_W[15][4];
+        char saved_killed_B[15][4];
+        for(int x = 0; x < 8; x++) {
+            for(int y = 0; y < 8; y++) {
+                memcpy(saved_board[x][y], board[x][y], 4);
+                saved_moved[x][y] = moved[x][y];
+            }
+        }
+        memcpy(saved_killed_W, killed_arrW, sizeof(killed_arrW));
+        memcpy(saved_killed_B, killed_arrB, sizeof(killed_arrB));
+
+        char piece_at_source[4];
+        char piece_at_dest[4];
+        memcpy(piece_at_source, board[i][j], 4);
+        memcpy(piece_at_dest, board[r][c], 4);
+
         if((u8)board[i][j][2] == WhiteKing || (u8)board[i][j][2] == BlackKing) {
             if(i - r == 0 && abs(j - c) == 2) {
-                char king_piece[4];
-                memcpy(king_piece, board[i][j], 4);
                 castling(i, j, r, c);
                 if(invalid_move == 0) {
                     char empty[4] = "-";
-                    addToHistory(original_place, new_place, king_piece, empty, i, j, r, c);
+                    addToHistory(original_place, new_place, piece_at_source, empty, i, j, r, c);
                     history_added = 1;
                 }
                 if(invalid_move == 1) {
@@ -272,7 +292,7 @@ int player(char board[8][8][4], int turns){
                 continue;
             }
             if(enPassantDone == 1) {
-                addToHistory(original_place, new_place, board[i][j], board[r][c], i, j, r, c);
+                addToHistory(original_place, new_place, piece_at_source, piece_at_dest, i, j, r, c);
                 markEnPassant(c);
                 history_added = 1;
             }
@@ -284,7 +304,7 @@ int player(char board[8][8][4], int turns){
                 continue;
             }
             if(enPassantDone == 1) {
-                addToHistory(original_place, new_place, board[i][j], board[r][c], i, j, r, c);
+                addToHistory(original_place, new_place, piece_at_source, piece_at_dest, i, j, r, c);
                 markEnPassant(c);
                 history_added = 1;
             }
@@ -317,8 +337,7 @@ int player(char board[8][8][4], int turns){
                 printf("Invalid promotion move!\n");
                 continue;
             }
-            
-            addToHistory(original_place, new_place, board[i][j], board[r][c], i, j, r, c);
+            addToHistory(original_place, new_place, piece_at_source, piece_at_dest, i, j, r, c);
             if(colour == 1) {
                 markPromotion(whitePawn);
             } else {
@@ -326,9 +345,30 @@ int player(char board[8][8][4], int turns){
             }
             history_added = 1;
         }
-        
+         if(invalid_move == 0 && history_added == 0) {
+            char king_piece[4];
+            if(colour == 1) memcpy(king_piece, whiteKing, 4);
+            else memcpy(king_piece, blackKing, 4);
+            
+            if(kingInCheck(king_piece) == 1) {
+                for(int x = 0; x < 8; x++) {
+                    for(int y = 0; y < 8; y++) {
+                        memcpy(board[x][y], saved_board[x][y], 4);
+                        moved[x][y] = saved_moved[x][y];
+                    }
+                }
+                memcpy(killed_arrW, saved_killed_W, sizeof(killed_arrW));
+                memcpy(killed_arrB, saved_killed_B, sizeof(killed_arrB));
+                counterW = saved_counterW;
+                counterB = saved_counterB;
+                
+                invalid_move = 1;
+                printf("Illegal move! That would leave your king in check.\n");
+                continue;
+            }
+        }
         if(history_added == 0) {
-            addToHistory(original_place, new_place, board[i][j], board[r][c], i, j, r, c);
+            addToHistory(original_place, new_place, piece_at_source, piece_at_dest, i, j, r, c);
         }
         history[historyCount - 1].counterW_after = counterW;
         history[historyCount - 1].counterB_after = counterB;
@@ -342,19 +382,34 @@ char display(char board[8][8][4], char width_arr[8][2]) {
     for(int k = 0; k < 8; k++) {
         printf("       %s", width_arr[k]);
     }
-    printf("         Captured by White\tCaptured by Black");
+    printf("            Captured by White\t    Captured by Black");
     printf("\n\n");
-    
     for(int i = 0; i < 8; i++) {
         printf("%d  ", 8 - i);
         for(int j = 0; j < 8; j++) {
             printf("    %s   ", board[i][j]);
         }
         printf("    %d ", 8 - i);
-        printf("        %s        \t        %s        ", killed_arrB[i], killed_arrW[i]);
+        if(i < counterB && killed_arrB[i][0] != '\0' && killed_arrB[i][0] != '-' && killed_arrB[i][0] != '.') {
+            printf("        %s   ", killed_arrB[i]);
+        } else {
+            printf("                ");
+        }
+        if((i + 8) < counterB && killed_arrB[i + 8][0] != '\0' && killed_arrB[i + 8][0] != '-' && killed_arrB[i + 8][0] != '.') {
+            printf("%s        \t", killed_arrB[i + 8]);
+        } else {
+            printf("          \t");
+        }
+        if(i < counterW && killed_arrW[i][0] != '\0' && killed_arrW[i][0] != '-' && killed_arrW[i][0] != '.') {
+            printf("         %s   ", killed_arrW[i]);
+        } else {
+            printf("                ");
+        }
+        if((i + 8) < counterW && killed_arrW[i + 8][0] != '\0' && killed_arrW[i + 8][0] != '-' && killed_arrW[i + 8][0] != '.') {
+            printf("%s", killed_arrW[i + 8]);
+        } 
         printf("\n\n");
     }
-    
     for(int k = 0; k < 8; k++) {
         printf("       %s", width_arr[k]);
     }

@@ -82,5 +82,5 @@ int loadGame(char *filename);
 
 void displaySavedGames(void);
 
-void getFilename(char *filename, int maxLen);
+void getFilename(char filename[255]);
 #endif
