@@ -67,12 +67,12 @@ int main() {
                     return_to_menu = player(board, turns);
                     if(return_to_menu == 0) {
                         display(board, width_arr);
-                        turns++;
                         if(turns % 2 == 1) {
                             memset(moved_pawnB, 0, sizeof(moved_pawnB));
                         } else {
                             memset(moved_pawnW, 0, sizeof(moved_pawnW));
                         }
+                        turns++;
                     }
                 }
                 break;
