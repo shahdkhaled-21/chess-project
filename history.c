@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "moves.h"
-#include  "specialMoves.h"
+#include "specialMoves.h"
 
 typedef unsigned char u8;
 
@@ -552,7 +552,7 @@ void displaySavedGames(){
 
 void getFilename(char filename[255]) {
     printf("Enter filename (without .txt) or 0 to cancel: ");
-    scanf("%255s", filename);
+    scanf("%254s", filename);
     if(filename[0] != '0'){
         if(strstr(filename, ".txt") == NULL) {
             strcat(filename, ".txt");
