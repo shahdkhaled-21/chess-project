@@ -257,7 +257,7 @@ void queen(int i, int j, int r, int c, int colour){
                 moved[i][j] = 0;
             }
         }
-        else if(board[r][c][0] == '-' && i == r && (r+c)&1==1 || board[r][c][0] == '-'  && j == c && (r+c)&1 == 1){
+        else if((board[r][c][0] == '-' && i == r && (((i+j)&1)==1) )|| (board[r][c][0] == '-'  && j == c && (((i+j)&1)==1))){
             memcpy(board[r][c], board[i][j], 4);
             memcpy(board[i][j], ".", 2);
             if(checking_checkmate == 0 && checking_stalemate == 0){
@@ -265,7 +265,7 @@ void queen(int i, int j, int r, int c, int colour){
                 moved[i][j] = 0;
             }
         }
-        else if(board[r][c][0] == '-' && i == r && (r+c)&1==0 || board[r][c][0] == '-' && j == c && (r+c)&1 == 0){
+        else if((board[r][c][0] == '-' && i == r && (((i+j)&1)==0)) ||( board[r][c][0] == '-' && j == c && (((i+j)&1)==0))){
             memcpy(board[r][c], board[i][j], 4);
             memcpy(board[i][j], "-", 2);
             if(checking_checkmate == 0 && checking_stalemate == 0){
@@ -273,7 +273,7 @@ void queen(int i, int j, int r, int c, int colour){
                 moved[i][j] = 0;
             }
         }
-        else if(board[r][c][0] == '.' && i == r && (r+c)&1 == 0 || board[r][c][0] == '.' && j == c && (r+c)&1 == 0){
+        else if((board[r][c][0] == '.' && i == r && (((i+j)&1)==0)) ||( board[r][c][0] == '.' && j == c && (((i+j)&1)==0))){
             memcpy(board[r][c], board[i][j], 4);
             memcpy(board[i][j], ".", 2);
             if(checking_checkmate == 0 && checking_stalemate == 0){
@@ -281,7 +281,7 @@ void queen(int i, int j, int r, int c, int colour){
                 moved[i][j] = 0;
             }
         }
-        else if(board[r][c][0] == '.' && i == r && (r+c)&1 == 1 || board[r][c][0] == '.' && j == c && (r+c)&1 == 1){
+        else if((board[r][c][0] == '.' && i == r && (((i+j)&1)==1) )|| (board[r][c][0] == '.' && j == c && (((i+j)&1)==1))){
             memcpy(board[r][c], board[i][j], 4);
             memcpy(board[i][j], "-", 2);
             if(checking_checkmate == 0 && checking_stalemate == 0){
