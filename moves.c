@@ -777,23 +777,23 @@ void rook(int i, int j, int r, int c, int colour){
             }
         }  
         else  if(piece_colour(board[r][c]) != colour && ((r == i && (c > j || c < j)) || (c == j && (r > i || r < i)))){
-            if(checking_checkmate == 0 && checking_stalemate == 0){
-                if(isWhite(board[r][c])){
-                    memcpy(killed_arrW[counterW], board[r][c], 4);
-                    counterW++;
-                }
-                else{
-                    memcpy(killed_arrB[counterB], board[r][c], 4);
-                    counterB++;
+                if(checking_checkmate == 0 && checking_stalemate == 0){
+                    if(isWhite(board[r][c])){
+                        memcpy(killed_arrW[counterW], board[r][c], 4);
+                        counterW++;
+                    }
+                    else{
+                        memcpy(killed_arrB[counterB], board[r][c], 4);
+                        counterB++;
+                    }
+                } 
+                memcpy(board[r][c], board[i][j], 4);
+                if(checking_checkmate == 0 && checking_stalemate == 0){
+                    moved[r][c] = 1;
+                    moved[i][j] = 0;
+                    change( i, j);
                 }
             }
-            if(checking_checkmate == 0 && checking_stalemate == 0){
-                moved[r][c] = 1;
-                moved[i][j] = 0;
-                change( i, j);
-            }
-            memcpy(board[r][c], board[i][j], 4);
-        }
         else if(piece_colour(board[r][c]) == colour && ((r == i && (c > j || c < j)) || (c == j && (r > i || r < i)))){
             invalid_move=1;   
             if(!checking_checkmate && !checking_stalemate) printf("Cannot eat a friendly piece\n");
@@ -831,7 +831,7 @@ void king(int i, int j, int r, int c, int colour){
             moved[i][j] = 0;
         }
         char king_piece[4];
-        if(colour == 0) memcpy(king_piece, whiteKing, 4);
+        if(colour == 1) memcpy(king_piece, whiteKing, 4);
         else memcpy(king_piece, blackKing, 4);
         int would_be_in_check = isSquareAttacked(r, c, colour);
         memcpy(board[i][j], temp_src, 4);

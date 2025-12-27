@@ -240,6 +240,24 @@ int isCheckmate(int colour){
     }
     if(king_i == -1) return 0;
     if(!kingInCheck(king_piece)) return 0;
+    
+    // Save the entire board state including counters and killed arrays
+    char saved_board[8][8][4];
+    int saved_moved[8][8];
+    int saved_counterW = counterW;
+    int saved_counterB = counterB;
+    char saved_killedW[15][4];
+    char saved_killedB[15][4];
+    
+    for(int x = 0; x < 8; x++){
+        for(int y = 0; y < 8; y++){
+            memcpy(saved_board[x][y], board[x][y], 4);
+            saved_moved[x][y] = moved[x][y];
+        }
+    }
+    memcpy(saved_killedW, killed_arrW, sizeof(killed_arrW));
+    memcpy(saved_killedB, killed_arrB, sizeof(killed_arrB));
+    
     checking_checkmate = 1;
     for(i = 0; i < 8; i++){
         for(j = 0; j < 8; j++){
@@ -253,6 +271,7 @@ int isCheckmate(int colour){
                     memcpy(save_dest, board[r][c], 4);
                     save_moved_src = moved[i][j];
                     save_moved_dest = moved[r][c];
+                    invalid_move = 0;
                     u8 piece_type = (u8)board[i][j][2];
                     if(piece_type == WhitePawn){
                         white_pawn(i, j, r, c);
@@ -269,12 +288,8 @@ int isCheckmate(int colour){
                     } else if(piece_type == WhiteKing || piece_type == BlackKing){
                         king(i, j, r, c, colour);
                     }
-                    int move_happened = 0;
-                    if(memcmp(board[i][j], save_src, 4) != 0 || memcmp(board[r][c], save_dest, 4) != 0){
-                        move_happened = 1;
-                    }
                     int escaped = 0;
-                    if(move_happened){
+                    if(invalid_move == 0){
                         if(!kingInCheck(king_piece)){
                             escaped = 1;
                         }
@@ -284,6 +299,17 @@ int isCheckmate(int colour){
                     moved[i][j] = save_moved_src;
                     moved[r][c] = save_moved_dest;
                     if(escaped){
+                        // Restore everything before returning
+                        for(int x = 0; x < 8; x++){
+                            for(int y = 0; y < 8; y++){
+                                memcpy(board[x][y], saved_board[x][y], 4);
+                                moved[x][y] = saved_moved[x][y];
+                            }
+                        }
+                        counterW = saved_counterW;
+                        counterB = saved_counterB;
+                        memcpy(killed_arrW, saved_killedW, sizeof(killed_arrW));
+                        memcpy(killed_arrB, saved_killedB, sizeof(killed_arrB));
                         checking_checkmate = 0;
                         return 0;
                     }
@@ -291,6 +317,18 @@ int isCheckmate(int colour){
             }
         }
     }
+    
+    // Restore everything before returning checkmate
+    for(int x = 0; x < 8; x++){
+        for(int y = 0; y < 8; y++){
+            memcpy(board[x][y], saved_board[x][y], 4);
+            moved[x][y] = saved_moved[x][y];
+        }
+    }
+    counterW = saved_counterW;
+    counterB = saved_counterB;
+    memcpy(killed_arrW, saved_killedW, sizeof(killed_arrW));
+    memcpy(killed_arrB, saved_killedB, sizeof(killed_arrB));
     checking_checkmate = 0;
     return 1;
 }
@@ -315,6 +353,24 @@ int isStalemate(int colour){
     }
     if(king_i == -1) return 0;
     if(kingInCheck(king_piece)) return 0;
+    
+    // Save the entire board state including counters and killed arrays
+    char saved_board[8][8][4];
+    int saved_moved[8][8];
+    int saved_counterW = counterW;
+    int saved_counterB = counterB;
+    char saved_killedW[15][4];
+    char saved_killedB[15][4];
+    
+    for(int x = 0; x < 8; x++){
+        for(int y = 0; y < 8; y++){
+            memcpy(saved_board[x][y], board[x][y], 4);
+            saved_moved[x][y] = moved[x][y];
+        }
+    }
+    memcpy(saved_killedW, killed_arrW, sizeof(killed_arrW));
+    memcpy(saved_killedB, killed_arrB, sizeof(killed_arrB));
+    
     checking_stalemate = 1;
     for(i = 0; i < 8; i++){
         for(j = 0; j < 8; j++){
@@ -328,6 +384,9 @@ int isStalemate(int colour){
                     memcpy(save_dest, board[r][c], 4);
                     save_moved_src = moved[i][j];
                     save_moved_dest = moved[r][c];
+
+                    invalid_move = 0;
+
                     u8 piece_type = (u8)board[i][j][2];
 
                     if(piece_type == WhitePawn){
@@ -345,12 +404,9 @@ int isStalemate(int colour){
                     } else if(piece_type == WhiteKing || piece_type == BlackKing){
                         king(i, j, r, c, colour);
                     }
-                    int move_happened = 0;
-                    if(memcmp(board[i][j], save_src, 4) != 0 || memcmp(board[r][c], save_dest, 4) != 0){
-                        move_happened = 1;
-                    }
+                    
                     int legal_move = 0;
-                    if(move_happened){
+                    if(invalid_move == 0){
                         if(!kingInCheck(king_piece)){
                             legal_move = 1;
                         }
@@ -360,6 +416,17 @@ int isStalemate(int colour){
                     moved[i][j] = save_moved_src;
                     moved[r][c] = save_moved_dest;
                     if(legal_move){
+                        // Restore everything before returning
+                        for(int x = 0; x < 8; x++){
+                            for(int y = 0; y < 8; y++){
+                                memcpy(board[x][y], saved_board[x][y], 4);
+                                moved[x][y] = saved_moved[x][y];
+                            }
+                        }
+                        counterW = saved_counterW;
+                        counterB = saved_counterB;
+                        memcpy(killed_arrW, saved_killedW, sizeof(killed_arrW));
+                        memcpy(killed_arrB, saved_killedB, sizeof(killed_arrB));
                         checking_stalemate = 0;
                         return 0;
                     }
@@ -367,6 +434,18 @@ int isStalemate(int colour){
             }
         }
     }
+    
+    // Restore everything before returning stalemate
+    for(int x = 0; x < 8; x++){
+        for(int y = 0; y < 8; y++){
+            memcpy(board[x][y], saved_board[x][y], 4);
+            moved[x][y] = saved_moved[x][y];
+        }
+    }
+    counterW = saved_counterW;
+    counterB = saved_counterB;
+    memcpy(killed_arrW, saved_killedW, sizeof(killed_arrW));
+    memcpy(killed_arrB, saved_killedB, sizeof(killed_arrB));
     checking_stalemate = 0;
     return 1;
 }
