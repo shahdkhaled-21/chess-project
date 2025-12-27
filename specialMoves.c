@@ -224,10 +224,8 @@ int isCheckmate(int colour){
     int i; int j; int r; int c;
     char king_piece[4];
     int king_i = -1; int king_j = -1;
-
     if(colour == 1) memcpy(king_piece, whiteKing, 4);
     else memcpy(king_piece, blackKing, 4);
-    
     for(i = 0; i < 8; i++){
         for(j = 0; j < 8; j++){
             if(memcmp(board[i][j], king_piece, 4) == 0){
@@ -240,15 +238,12 @@ int isCheckmate(int colour){
     }
     if(king_i == -1) return 0;
     if(!kingInCheck(king_piece)) return 0;
-    
-    // Save the entire board state including counters and killed arrays
     char saved_board[8][8][4];
     int saved_moved[8][8];
     int saved_counterW = counterW;
     int saved_counterB = counterB;
     char saved_killedW[15][4];
     char saved_killedB[15][4];
-    
     for(int x = 0; x < 8; x++){
         for(int y = 0; y < 8; y++){
             memcpy(saved_board[x][y], board[x][y], 4);
@@ -273,20 +268,22 @@ int isCheckmate(int colour){
                     save_moved_dest = moved[r][c];
                     invalid_move = 0;
                     u8 piece_type = (u8)board[i][j][2];
+                    int piece_owner = piece_colour(board[i][j]);
+                    
                     if(piece_type == WhitePawn){
                         white_pawn(i, j, r, c);
                     } else if(piece_type == BlackPawn){
                         black_pawn(i, j, r, c);
                     }else if(piece_type == WhiteRook || piece_type == BlackRook){
-                        rook(i, j, r, c, colour);
+                        rook(i, j, r, c, piece_owner);
                     } else if(piece_type == WhiteKnight || piece_type == BlackKnight){
-                        knight(i, j, r, c, colour);
+                        knight(i, j, r, c, piece_owner);
                     } else if(piece_type == WhiteBishop || piece_type == BlackBishop){
-                        bishop(i, j, r, c, colour);
+                        bishop(i, j, r, c, piece_owner);
                     } else if(piece_type == WhiteQueen || piece_type == BlackQueen){
-                        queen(i, j, r, c, colour);
+                        queen(i, j, r, c, piece_owner);
                     } else if(piece_type == WhiteKing || piece_type == BlackKing){
-                        king(i, j, r, c, colour);
+                        king(i, j, r, c, piece_owner);
                     }
                     int escaped = 0;
                     if(invalid_move == 0){
@@ -299,7 +296,6 @@ int isCheckmate(int colour){
                     moved[i][j] = save_moved_src;
                     moved[r][c] = save_moved_dest;
                     if(escaped){
-                        // Restore everything before returning
                         for(int x = 0; x < 8; x++){
                             for(int y = 0; y < 8; y++){
                                 memcpy(board[x][y], saved_board[x][y], 4);
@@ -317,8 +313,6 @@ int isCheckmate(int colour){
             }
         }
     }
-    
-    // Restore everything before returning checkmate
     for(int x = 0; x < 8; x++){
         for(int y = 0; y < 8; y++){
             memcpy(board[x][y], saved_board[x][y], 4);
@@ -353,8 +347,6 @@ int isStalemate(int colour){
     }
     if(king_i == -1) return 0;
     if(kingInCheck(king_piece)) return 0;
-    
-    // Save the entire board state including counters and killed arrays
     char saved_board[8][8][4];
     int saved_moved[8][8];
     int saved_counterW = counterW;
@@ -388,23 +380,23 @@ int isStalemate(int colour){
                     invalid_move = 0;
 
                     u8 piece_type = (u8)board[i][j][2];
+                    int piece_owner = piece_colour(board[i][j]);
 
                     if(piece_type == WhitePawn){
                         white_pawn(i, j, r, c);
                     } else if(piece_type == BlackPawn){
                         black_pawn(i, j, r, c);
                     } else if(piece_type == WhiteRook || piece_type == BlackRook){
-                        rook(i, j, r, c, colour);
+                        rook(i, j, r, c, piece_owner);
                     } else if(piece_type == WhiteKnight || piece_type == BlackKnight){
-                        knight(i, j, r, c, colour);
+                        knight(i, j, r, c, piece_owner);
                     } else if(piece_type == WhiteBishop || piece_type == BlackBishop){
-                        bishop(i, j, r, c, colour);
+                        bishop(i, j, r, c, piece_owner);
                     } else if(piece_type == WhiteQueen || piece_type == BlackQueen){
-                        queen(i, j, r, c, colour);
+                        queen(i, j, r, c, piece_owner);
                     } else if(piece_type == WhiteKing || piece_type == BlackKing){
-                        king(i, j, r, c, colour);
+                        king(i, j, r, c, piece_owner);
                     }
-                    
                     int legal_move = 0;
                     if(invalid_move == 0){
                         if(!kingInCheck(king_piece)){
@@ -416,7 +408,6 @@ int isStalemate(int colour){
                     moved[i][j] = save_moved_src;
                     moved[r][c] = save_moved_dest;
                     if(legal_move){
-                        // Restore everything before returning
                         for(int x = 0; x < 8; x++){
                             for(int y = 0; y < 8; y++){
                                 memcpy(board[x][y], saved_board[x][y], 4);
@@ -434,8 +425,6 @@ int isStalemate(int colour){
             }
         }
     }
-    
-    // Restore everything before returning stalemate
     for(int x = 0; x < 8; x++){
         for(int y = 0; y < 8; y++){
             memcpy(board[x][y], saved_board[x][y], 4);

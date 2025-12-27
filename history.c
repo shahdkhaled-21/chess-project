@@ -142,7 +142,6 @@ void moveFromCoords(char from[3], char to[3]){
         invalid_move = 1;
         return;
     }
-    
     if(isWhite(piece)) colour = 1;
     else colour = 0;
     
@@ -164,6 +163,18 @@ void moveFromCoords(char from[3], char to[3]){
         rook(i, j, r, c, colour);
     }
     else if(piece_type == WhitePawn || piece_type == BlackPawn) {
+        if(must_promote(i, j, r, c) == 1) {
+            char promotion_pieces[2][4][4] = {
+                {{"\u265C"}, {"\u265D"}, {"\u265E"}, {"\u265B"}},
+                {{"\u2656"}, {"\u2657"}, {"\u2658"}, {"\u2655"}}
+            };
+            promotion(i, j, r, c, promotion_pieces[colour][3]);
+            if(invalid_move == 0) {
+                addToHistory(from, to, piece, board[r][c], i, j, r, c);
+                markPromotion(piece);
+            }
+            return;
+        }
         (colour == 1) ? white_pawn(i, j, r, c) : black_pawn(i, j, r, c);
         if(invalid_move == 0 && enPassantDone == 1) {
             addToHistory(from, to, piece, board[r][c], i, j, r, c);
@@ -378,54 +389,151 @@ void saveGame(char filename[255]){
         printf("Error: Cannot create save file\n");
         return;
     }
-
     fprintf(file, "%d\n", historyPosition);
-
     for(int i = 0; i < historyPosition; i++){
         History *h = &history[i];
-        fprintf(file, "%s %s\n", h->original_place, h->new_place);
+        fprintf(file, "%s %s", h->original_place, h->new_place);
+        if(h->was_promotion) {
+            int dest_i = 8 - (h->new_place[1] - '0');
+            int dest_j = h->new_place[0] - 'A';
+            u8 promoted_type = (u8)board[dest_i][dest_j][2];
+            if(promoted_type == WhiteQueen || promoted_type == BlackQueen) 
+                fprintf(file, " Q");
+            else if(promoted_type == WhiteRook || promoted_type == BlackRook) 
+                fprintf(file, " R");
+            else if(promoted_type == WhiteBishop || promoted_type == BlackBishop) 
+                fprintf(file, " B");
+            else if(promoted_type == WhiteKnight || promoted_type == BlackKnight) 
+                fprintf(file, " K");
+        }
+        fprintf(file, "\n");
     }
-
     fclose(file);
-    printf("Game saved\n");
+    printf("Game saved successfully to %s\n", filename);
 }
 
 int loadGame(char filename[255]){
     FILE *file = fopen(filename, "r");
     if(!file){
-        printf("Error: Cannot open file\n");
+        printf("Error: Cannot open file %s\n", filename);
         return 0;
     }
-
     int move_count;
     if(fscanf(file, "%d", &move_count) != 1){
-        printf("Invalid save file\n");
+        printf("Invalid save file format\n");
         fclose(file);
         return 0;
     }
-
     resetGame();
-
-    char from[3], to[3];
-
+    char line[100];
+    fgets(line, sizeof(line), file);
     for(int k = 0; k < move_count; k++){
-        if(fscanf(file, "%2s %2s", from, to) != 2){
+        if(!fgets(line, sizeof(line), file)){
             printf("Error reading move %d\n", k+1);
             fclose(file);
             return 0;
         }
-
-        moveFromCoords(from, to);
-
+        char from[3], to[3];
+        char promotion_piece = '\0';
+        int parsed = sscanf(line, "%2s %2s %c", from, to, &promotion_piece);
+        if(parsed < 2) {
+            printf("Error parsing move %d: %s\n", k+1, line);
+            fclose(file);
+            return 0;
+        }
+        j = from[0] - 'A';
+        i = 8 - (from[1] - '0');
+        c = to[0] - 'A';
+        r = 8 - (to[1] - '0');
+        invalid_move = 0;
+        char piece[4];
+        memcpy(piece, board[i][j], 4);
+        if(piece[0] == '.' || piece[0] == '-'){
+            printf("Invalid move at %s: no piece there\n", from);
+            fclose(file);
+            return 0;
+        }
+        if(isWhite(piece)) colour = 1;
+        else colour = 0;
+        u8 piece_type = (u8)piece[2];
+        if(piece_type == WhitePawn || piece_type == BlackPawn) {
+            if(parsed == 3 && (promotion_piece == 'Q' || promotion_piece == 'R' || 
+                               promotion_piece == 'B' || promotion_piece == 'K')) {
+                char promotion_piecesW[4][4] = {"\u2656", "\u2657", "\u2658", "\u2655"};
+                char promotion_piecesB[4][4] = {"\u265C", "\u265D", "\u265E", "\u265B"};
+                char (*promotion_pieces)[4] = (colour == 1) ? promotion_piecesW : promotion_piecesB;
+                int promo_index;
+                if(promotion_piece == 'R') promo_index = 0;
+                else if(promotion_piece == 'B') promo_index = 1;
+                else if(promotion_piece == 'K') promo_index = 2;
+                else if(promotion_piece == 'Q') promo_index = 3;
+                promotion(i, j, r, c, promotion_pieces[promo_index]);
+                if(invalid_move == 0) {
+                    addToHistory(from, to, piece, board[r][c], i, j, r, c);
+                    markPromotion(piece);
+                }
+            }
+            else {
+                if(colour == 1) {
+                    white_pawn(i, j, r, c);
+                } else {
+                    black_pawn(i, j, r, c);
+                }
+                
+                if(invalid_move == 0) {
+                    addToHistory(from, to, piece, board[r][c], i, j, r, c);
+                    if(enPassantDone == 1) {
+                        markEnPassant(c);
+                    }
+                }
+            }
+        }
+        else if(piece_type == WhiteKing || piece_type == BlackKing) {
+            if(i == r && abs(j - c) == 2) {
+                castling(i, j, r, c);
+                if(invalid_move == 0) {
+                    addToHistory(from, to, piece, board[r][c], i, j, r, c);
+                }
+            } else {
+                king(i, j, r, c, colour);
+                if(invalid_move == 0) {
+                    addToHistory(from, to, piece, board[r][c], i, j, r, c);
+                }
+            }
+        }
+        else if(piece_type == WhiteRook || piece_type == BlackRook) {
+            rook(i, j, r, c, colour);
+            if(invalid_move == 0) {
+                addToHistory(from, to, piece, board[r][c], i, j, r, c);
+            }
+        }
+        else if(piece_type == WhiteKnight || piece_type == BlackKnight) {
+            knight(i, j, r, c, colour);
+            if(invalid_move == 0) {
+                addToHistory(from, to, piece, board[r][c], i, j, r, c);
+            }
+        }
+        else if(piece_type == WhiteBishop || piece_type == BlackBishop) {
+            bishop(i, j, r, c, colour);
+            if(invalid_move == 0) {
+                addToHistory(from, to, piece, board[r][c], i, j, r, c);
+            }
+        }
+        else if(piece_type == WhiteQueen || piece_type == BlackQueen) {
+            queen(i, j, r, c, colour);
+            if(invalid_move == 0) {
+                addToHistory(from, to, piece, board[r][c], i, j, r, c);
+            }
+        }
         if(invalid_move){
-            printf("Invalid move in save: %s %s\n", from, to);
+            printf("Invalid move in save file: %s to %s\n", from, to);
             fclose(file);
             return 0;
         }
     }
-
     fclose(file);
-    printf("Game loaded successfully!\n\n");
+    printf("Game loaded successfully from %s!\n", filename);
+    printf("Loaded %d moves.\n\n", move_count);
     return 1;
 }
 
